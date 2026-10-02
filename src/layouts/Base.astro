@@ -7,38 +7,64 @@ import '../styles/global.css';
 import Icon from '../components/Icon.astro';
 import BoutonsContact from '../components/BoutonsContact.astro';
 import Manquant from '../components/Manquant.astro';
-import { BROUILLON, garage, servicesVisibles, ligneRue, ligneVille, lienAppel, lienItineraire, lienEmail, donneesStructurees } from '../lib/site.mjs';
-import { communes } from '../data/communes.mjs';
+import {
+  BROUILLON,
+  garage,
+  servicesVisibles,
+  communesVisibles,
+  pageAvisVisible,
+  ligneRue,
+  ligneVille,
+  lienAppel,
+  lienItineraire,
+  lienEmail,
+  whatsappE164,
+  de,
+  donneesStructurees,
+} from '../lib/site.mjs';
 import { listerManques } from '../data/manques.mjs';
 
 interface Props {
   titre: string;
   description: string;
-  /** Titre complet déjà formaté (sinon « titre | LM Motors … »). */
+  /** Titre complet déjà formaté (sinon « titre | LM Motors »). */
   titreComplet?: boolean;
   noindex?: boolean;
+  /** Lien du bouton « Devis » de la barre mobile (ex. '/devis/?prestation=freinage'). */
+  devisHref?: string;
+  /** Prestation de la page, pour pré-remplir le message WhatsApp. */
+  prestation?: string;
 }
 
-const { titre, description, titreComplet = false, noindex = false } = Astro.props;
+const { titre, description, titreComplet = false, noindex = false, devisHref = '/devis/', prestation } = Astro.props;
 const site = Astro.site?.href ?? '/';
 const canonique = new URL(Astro.url.pathname, site).href;
-const titrePage = titreComplet ? titre : `${titre} | ${garage.nom}, garage à Champs-sur-Yonne`;
-const robots = BROUILLON || noindex ? 'noindex, nofollow' : 'index, follow';
+const titrePage = titreComplet ? titre : `${titre} | ${garage.nom}`;
+const indexable = !BROUILLON && !noindex;
+const robots = indexable ? 'index, follow' : 'noindex, nofollow';
 const jsonLd = donneesStructurees(site);
+const imagePartage = new URL(garage.visuels.photos[0]?.src ?? '/og.png', site).href;
 
 const chemin = Astro.url.pathname;
 const navigation = [
   { href: '/services/', nom: 'Prestations' },
-  { href: '/zone-intervention/', nom: 'Zone d’intervention' },
+  { href: '/communes-proches/', nom: 'Communes proches', visible: communesVisibles.length > 0 },
   { href: '/acces/', nom: 'Accès & horaires' },
-  { href: '/avis/', nom: 'Avis' },
+  { href: '/avis/', nom: 'Avis', visible: pageAvisVisible },
   { href: '/devis/', nom: 'Devis & RDV', mobileSeul: true },
-];
+].filter((l) => l.visible !== false);
+
+// Barre mobile : sur /devis/ et /merci/, le bouton « Devis » ne doit pas recharger le formulaire.
+const autreContact = Boolean(lienAppel || whatsappE164);
+const surFormulaire = chemin === '/devis/' || chemin === '/merci/';
+const devisBarre = !surFormulaire || !autreContact;
+const devisBarreHref = surFormulaire ? '#formulaire' : devisHref;
 
 const manques = BROUILLON ? listerManques() : [];
 const nbBloquants = manques.filter((m) => m.niveau === 'bloquant').length;
 const nbImportants = manques.filter((m) => m.niveau === 'important').length;
 const plausible = garage.analytics.plausibleDomain;
+const L = garage.legal;
 ---
 <!doctype html>
 <html lang="fr">
@@ -48,7 +74,7 @@ const plausible = garage.analytics.plausibleDomain;
     <title>{titrePage}</title>
     <meta name="description" content={description} />
     <meta name="robots" content={robots} />
-    <link rel="canonical" href={canonique} />
+    {indexable && <link rel="canonical" href={canonique} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#101318" />
@@ -59,22 +85,28 @@ const plausible = garage.analytics.plausibleDomain;
     <meta property="og:site_name" content={garage.nom} />
     <meta property="og:title" content={titrePage} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonique} />
+    {indexable && <meta property="og:url" content={canonique} />}
+    <meta property="og:image" content={imagePartage} />
+    {!garage.visuels.photos[0] && <meta property="og:image:width" content="1200" />}
+    {!garage.visuels.photos[0] && <meta property="og:image:height" content="630" />}
+    <meta property="og:image:alt" content={`${garage.nom}, garage automobile à Champs-sur-Yonne`} />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     {plausible && <script defer data-domain={plausible} src="https://plausible.io/js/script.js"></script>}
+    {plausible && <script is:inline>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments); };</script>}
     <slot name="head" />
   </head>
   <body>
     <a class="lien-evitement" href="#contenu">Aller au contenu</a>
 
     {BROUILLON && (
-      <div class="bandeau-brouillon" role="note">
+      <section class="bandeau-brouillon" aria-label="Version de travail">
         <div class="conteneur">
           <span>Version de travail, non publiée : {nbBloquants} information{nbBloquants > 1 ? 's' : ''} bloquante{nbBloquants > 1 ? 's' : ''} et {nbImportants} importante{nbImportants > 1 ? 's' : ''} à compléter.</span>
           <a href="/brouillon/">Voir la liste →</a>
         </div>
-      </div>
+      </section>
     )}
 
     <header class="entete">
@@ -88,6 +120,10 @@ const plausible = garage.analytics.plausibleDomain;
         </a>
 
         <nav class="nav" aria-label="Navigation principale">
+          <button class="nav__bouton" type="button" aria-expanded="false" aria-controls="menu-principal" data-bouton-menu>
+            <span class="visuellement-cache" data-libelle-menu>Ouvrir le menu</span>
+            <Icon name="menu" />
+          </button>
           <div class="nav__menu" id="menu-principal" data-ouvert="false">
             <ul class="nav__liste">
               {navigation.map((l) => (
@@ -102,16 +138,12 @@ const plausible = garage.analytics.plausibleDomain;
         </nav>
 
         <div class="entete__actions">
-          <BoutonsContact variante="entete" whatsapp={false} />
-          <button class="nav__bouton" type="button" aria-expanded="false" aria-controls="menu-principal" data-bouton-menu>
-            <span class="visuellement-cache" data-libelle-menu>Ouvrir le menu</span>
-            <Icon name="menu" />
-          </button>
+          <BoutonsContact variante="entete" whatsapp={false} devisHref={devisHref} />
         </div>
       </div>
     </header>
 
-    <main id="contenu">
+    <main id="contenu" tabindex="-1">
       <slot />
     </main>
 
@@ -126,38 +158,42 @@ const plausible = garage.analytics.plausibleDomain;
                 <span class="logo__lieu">Garage · Champs-sur-Yonne</span>
               </span>
             </a>
-            <address style="font-style: normal; margin-top: 20px;">
-              {ligneRue}{!garage.adresse.numero && BROUILLON && <> <Manquant quoi="n°" /></>}<br />
+            <address class="pied__adresse">
+              {ligneRue}{!garage.adresse.numero && BROUILLON && <>{' '}<Manquant quoi="n°" /></>}<br />
               {garage.adresse.complement && <>{garage.adresse.complement}<br /></>}
               {ligneVille}
-              {lienAppel && <><br /><a href={lienAppel} data-suivi="Appel">{garage.telephone}</a></>}
+              {lienAppel && <><br /><a href={lienAppel} data-suivi="Appel" data-suivi-lieu="pied">{garage.telephone}</a></>}
               {garage.email && <><br /><a href={lienEmail(garage.email)}>{garage.email}</a></>}
             </address>
-            <p style="margin-top: 14px;"><a href={lienItineraire} target="_blank" rel="noopener" data-suivi="Itinéraire">Itinéraire →</a></p>
+            <p><a href={lienItineraire} target="_blank" rel="noopener" data-suivi="Itinéraire" data-suivi-lieu="pied">Itinéraire →</a></p>
           </div>
 
-          <div>
-            <h2>Prestations</h2>
-            <ul>
-              {servicesVisibles.slice(0, 7).map((s) => <li><a href={`/services/${s.slug}/`}>{s.titre}</a></li>)}
-              <li><a href="/services/">Toutes les prestations</a></li>
-            </ul>
-          </div>
+          {servicesVisibles.length > 0 && (
+            <div>
+              <h2>Prestations</h2>
+              <ul>
+                {servicesVisibles.slice(0, 7).map((s) => <li><a href={`/services/${s.slug}/`}>{s.titre}</a></li>)}
+                <li><a href="/services/">Toutes les prestations</a></li>
+              </ul>
+            </div>
+          )}
 
-          <div>
-            <h2>Zone d’intervention</h2>
-            <ul>
-              {communes.slice(0, 7).map((c) => <li><a href={`/${c.slug}/`}>Garage près de {c.nom}</a></li>)}
-              <li><a href="/zone-intervention/">Toutes les communes</a></li>
-            </ul>
-          </div>
+          {communesVisibles.length > 0 && (
+            <div>
+              <h2>Communes proches</h2>
+              <ul>
+                {communesVisibles.slice(0, 7).map((c) => <li><a href={`/${c.slug}/`}>Garage près {de(c.nom)}</a></li>)}
+                <li><a href="/communes-proches/">Toutes les communes</a></li>
+              </ul>
+            </div>
+          )}
 
           <div>
             <h2>Infos pratiques</h2>
             <ul>
               <li><a href="/devis/">Demande de devis ou de RDV</a></li>
               <li><a href="/acces/">Accès & horaires</a></li>
-              <li><a href="/avis/">Laisser un avis</a></li>
+              {pageAvisVisible && <li><a href="/avis/">Laisser un avis</a></li>}
               <li><a href="/mentions-legales/">Mentions légales</a></li>
               <li><a href="/confidentialite/">Confidentialité</a></li>
               {BROUILLON && <li><a href="/brouillon/">Liste des infos à compléter</a></li>}
@@ -166,14 +202,21 @@ const plausible = garage.analytics.plausibleDomain;
         </div>
 
         <div class="pied__bas">
-          <span>© {new Date().getFullYear()} {garage.nom} · Garage automobile à Champs-sur-Yonne (89290), Yonne</span>
-          <span>{garage.liens.facebook && <a href={garage.liens.facebook} rel="noopener" target="_blank">Facebook</a>} {garage.liens.instagram && <a href={garage.liens.instagram} rel="noopener" target="_blank">Instagram</a>}</span>
+          <span>
+            © {new Date().getFullYear()} {garage.nom} · Garage automobile à Champs-sur-Yonne (89290), Yonne
+            {L.raisonSociale && L.siret && <> · {L.raisonSociale} · SIRET {L.siret}</>}
+          </span>
+          <span>
+            {garage.liens.facebook && <a href={garage.liens.facebook} rel="noopener" target="_blank">Facebook</a>}
+            {garage.liens.facebook && garage.liens.instagram && ' · '}
+            {garage.liens.instagram && <a href={garage.liens.instagram} rel="noopener" target="_blank">Instagram</a>}
+          </span>
         </div>
       </div>
     </footer>
 
     <nav class="barre-mobile" aria-label="Contacter le garage">
-      <BoutonsContact variante="barre" />
+      <BoutonsContact variante="barre" devis={devisBarre} devisHref={devisBarreHref} prestation={prestation} />
     </nav>
 
     <script>
@@ -183,17 +226,25 @@ const plausible = garage.analytics.plausibleDomain;
       const bouton = document.querySelector<HTMLButtonElement>('[data-bouton-menu]');
       const menu = document.getElementById('menu-principal');
       const libelle = document.querySelector('[data-libelle-menu]');
-      bouton?.addEventListener('click', () => {
-        const ouvert = bouton.getAttribute('aria-expanded') === 'true';
-        bouton.setAttribute('aria-expanded', String(!ouvert));
-        menu?.setAttribute('data-ouvert', String(!ouvert));
-        if (libelle) libelle.textContent = ouvert ? 'Ouvrir le menu' : 'Fermer le menu';
-      });
+      const ouvert = () => bouton?.getAttribute('aria-expanded') === 'true';
+      const basculer = (etat: boolean) => {
+        bouton?.setAttribute('aria-expanded', String(etat));
+        menu?.setAttribute('data-ouvert', String(etat));
+        if (libelle) libelle.textContent = etat ? 'Fermer le menu' : 'Ouvrir le menu';
+      };
+      bouton?.addEventListener('click', () => basculer(!ouvert()));
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && bouton?.getAttribute('aria-expanded') === 'true') {
-          bouton.click();
-          bouton.focus();
+        if (e.key === 'Escape' && ouvert()) {
+          basculer(false);
+          bouton?.focus();
         }
+      });
+      document.addEventListener('click', (e) => {
+        if (ouvert() && e.target instanceof Element && !e.target.closest('.nav')) basculer(false);
+      });
+      document.querySelector('.nav')?.addEventListener('focusout', (e) => {
+        const vers = (e as FocusEvent).relatedTarget;
+        if (ouvert() && vers instanceof Element && !vers.closest('.nav')) basculer(false);
       });
     </script>
   </body>

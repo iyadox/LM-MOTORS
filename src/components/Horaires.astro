@@ -1,7 +1,8 @@
 ---
 /**
- * Tableau des horaires + statut « Ouvert / Fermé » calculé en direct (heure de Paris).
- * Si les horaires sont inconnus : « À compléter » en brouillon, invitation à appeler en production.
+ * Tableau des horaires + statut « Ouvert / Fermé » calculé en direct (heure de Paris,
+ * jours fériés et fermetures datées compris). Si les horaires sont inconnus :
+ * « À compléter » en brouillon, invitation à appeler en production.
  */
 import Manquant from './Manquant.astro';
 import { garage, JOURS, formaterPlages, lienAppel } from '../lib/site.mjs';
@@ -12,13 +13,19 @@ interface Props {
 }
 const { statutSeul = false, clair = true } = Astro.props;
 const h = garage.horaires;
+const donnees = h
+  ? JSON.stringify({ horaires: h, options: { ouvertJoursFeries: garage.ouvertJoursFeries, fermeturesDates: garage.fermeturesDates } })
+  : '';
+const fmtDate = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const aujourdhui = new Date().toISOString().slice(0, 10);
+const fermeturesAVenir = (garage.fermeturesDates || []).filter((f) => f.au >= aujourdhui);
 ---
 {h ? (
   statutSeul ? (
-    <span class:list={['statut', clair && 'statut--clair']} data-statut-horaires={JSON.stringify(h)} hidden></span>
+    <span class:list={['statut', clair && 'statut--clair']} data-statut-horaires={donnees} hidden></span>
   ) : (
     <div class="bloc-horaires">
-      <p><span class:list={['statut', clair && 'statut--clair']} data-statut-horaires={JSON.stringify(h)} hidden></span></p>
+      <p><span class:list={['statut', clair && 'statut--clair']} data-statut-horaires={donnees} hidden></span></p>
       <table class="horaires" data-tableau-horaires>
         <caption class="visuellement-cache">Horaires d’ouverture</caption>
         <tbody>
@@ -30,13 +37,16 @@ const h = garage.horaires;
           ))}
         </tbody>
       </table>
-      {garage.fermetures && <p class="champ__aide">{garage.fermetures}</p>}
+      {garage.ouvertJoursFeries === false && <p class="champ__aide">Fermé les jours fériés.</p>}
+      {fermeturesAVenir.map((f) => (
+        <p class="champ__aide">{f.texte || 'Fermeture'} : du {fmtDate.format(new Date(`${f.du}T12:00:00Z`))} au {fmtDate.format(new Date(`${f.au}T12:00:00Z`))}.</p>
+      ))}
     </div>
   )
 ) : statutSeul ? null : (
   <p>
     <Manquant quoi="horaires d’ouverture">
-      {lienAppel ? <span>Horaires communiqués par téléphone : <a href={lienAppel} data-suivi="Appel">{garage.telephone}</a>.</span> : <span>Horaires communiqués sur demande.</span>}
+      {lienAppel ? <span>Horaires communiqués par téléphone : <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="horaires">{garage.telephone}</a>.</span> : <span>Horaires communiqués sur demande.</span>}
     </Manquant>
   </p>
 )}

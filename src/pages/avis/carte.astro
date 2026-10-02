@@ -1,40 +1,85 @@
 ---
 /**
- * Carte imprimable à poser au comptoir : un QR code qui mène directement
- * à la page « Laisser un avis » Google du garage.
+ * Outil interne (noindex) pour obtenir des avis :
+ *  - 4 cartes A6 par feuille A4, avec QR code vers la page « Laisser un avis » Google,
+ *    lien en clair et coordonnées du garage (seulement celles qui sont connues) ;
+ *  - message prêt à envoyer par SMS ou WhatsApp après une intervention.
+ * Aucune contrepartie proposée, aucun tri des avis : c'est la règle de Google et la loi.
  */
 import QRCode from 'qrcode';
 import Base from '../../layouts/Base.astro';
 import Manquant from '../../components/Manquant.astro';
-import { garage, ligneVille } from '../../lib/site.mjs';
+import Icon from '../../components/Icon.astro';
+import { BROUILLON, garage, ligneVille } from '../../lib/site.mjs';
 
 const lien = garage.liens.googleAvis;
+if (!BROUILLON && !lien) return Astro.redirect('/');
+
 const qr = lien
   ? await QRCode.toString(lien, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#101318', light: '#ffffff' } })
   : null;
+const lienLisible = lien ? lien.replace(/^https?:\/\//, '') : null;
+const site = Astro.site && !/\.example\//.test(Astro.site.href) ? Astro.site.host : null;
+const message = lien
+  ? `Bonjour, merci d’être passé chez ${garage.nom}. Si vous avez une minute, votre avis nous aide beaucoup : ${lien}`
+  : null;
 ---
-<Base titre="Carte avis à imprimer" description="Carte avec QR code pour laisser un avis sur le garage." noindex>
-  <section class="section">
-    <div class="conteneur" style="max-width: 720px;">
-      <p class="ne-pas-imprimer" style="color: var(--texte-doux);">
-        Imprimez cette page (Ctrl + P) et posez la carte au comptoir ou glissez-la avec la facture.
-        <button class="btn btn--sombre" type="button" data-imprimer style="margin-top: 12px;">Imprimer</button>
-      </p>
-      <div style="border: 3px solid var(--encre); border-radius: 20px; padding: 40px; text-align: center; margin-top: 24px;">
-        <p class="surtitre" style="justify-content: center;">{garage.nom} · {ligneVille}</p>
-        <h1 style="font-size: clamp(2rem, 6vw, 3rem);">Votre avis nous aide</h1>
-        <p style="font-size: 1.2rem;">Scannez le code avec l’appareil photo de votre téléphone<br />pour laisser un avis sur Google.</p>
-        {qr ? (
-          <div style="width: 260px; margin: 24px auto 0;" set:html={qr} />
-        ) : (
-          <p style="margin-top: 24px;"><Manquant quoi="lien Google « Laisser un avis » (le QR code sera généré automatiquement)" /></p>
-        )}
-        <p style="margin-top: 24px; font-weight: 700;">Merci pour votre confiance !</p>
-      </div>
+<Base titre="Cartes et message pour demander un avis" description="Outil interne : cartes avec QR code et message pour demander un avis." noindex>
+  <section class="section ne-pas-imprimer">
+    <div class="conteneur" style="max-width: 820px;">
+      <h1 style="font-size: clamp(2rem, 5vw, 3rem);">Demander un avis</h1>
+
+      <h2>1. Cartes à imprimer</h2>
+      <p>4 cartes par feuille A4, à découper : une au comptoir, les autres avec les factures.</p>
+      <button class="btn btn--sombre" type="button" data-imprimer><Icon name="printer" size={20} /> Imprimer les cartes</button>
+
+      <h2 style="margin-top: 40px;">2. Message après une intervention</h2>
+      {message ? (
+        <>
+          <p>À envoyer au client le jour même, par SMS ou WhatsApp, depuis le téléphone du garage :</p>
+          <p class="encadre" data-message-avis>{message}</p>
+          <div class="groupe-boutons" style="margin-top: 16px;">
+            <button class="btn btn--contour" type="button" data-copier>Copier le message</button>
+            <a class="btn btn--contour" href={`sms:?&body=${encodeURIComponent(message)}`}>Ouvrir dans les SMS</a>
+            <a class="btn btn--whatsapp" href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener">Ouvrir dans WhatsApp</a>
+          </div>
+          <p class="champ__aide" data-copie-ok hidden>Message copié.</p>
+        </>
+      ) : (
+        <p><Manquant quoi="lien Google « Demander des avis » (le message et le QR code se génèrent automatiquement)" /></p>
+      )}
+      <p class="champ__aide" style="margin-top: 16px;">Ne proposez jamais de contrepartie et demandez un avis à tous les clients, pas seulement aux plus satisfaits.</p>
     </div>
   </section>
+
+  <div class="planche-cartes" aria-hidden="true">
+    {[0, 1, 2, 3].map(() => (
+      <div class="carte-avis">
+        <p class="carte-avis__garage">{garage.nom} · {ligneVille}</p>
+        <p class="carte-avis__titre">Votre avis nous aide</p>
+        <p>Scannez le code avec l’appareil photo de votre téléphone pour laisser un avis sur Google.</p>
+        {qr ? <div class="carte-avis__qr" set:html={qr} /> : <p><Manquant quoi="lien Google" /></p>}
+        {lienLisible && <p class="carte-avis__lien">{lienLisible}</p>}
+        <p class="carte-avis__contact">
+          {garage.telephone && <span>{garage.telephone}</span>}
+          {garage.telephone && site && ' · '}
+          {site && <span>{site}</span>}
+        </p>
+        <p class="carte-avis__merci">Merci pour votre confiance !</p>
+      </div>
+    ))}
+  </div>
 </Base>
 
 <script>
   document.querySelector('[data-imprimer]')?.addEventListener('click', () => window.print());
+  document.querySelector('[data-copier]')?.addEventListener('click', async () => {
+    const texte = document.querySelector('[data-message-avis]')?.textContent || '';
+    try {
+      await navigator.clipboard.writeText(texte);
+      document.querySelector('[data-copie-ok]')?.removeAttribute('hidden');
+    } catch {
+      /* copie refusée par le navigateur : le texte reste sélectionnable à la main */
+    }
+  });
 </script>

@@ -8,14 +8,20 @@
  * `valide: false` = prestation pas encore confirmée par le gérant.
  *   - mode brouillon : affichée avec la mention « À confirmer » ;
  *   - mode production : masquée.
- * Passer à `valide: true` uniquement pour les prestations que le garage réalise vraiment.
+ * Avant de passer à `valide: true` : SUPPRIMER de `contenu` chaque ligne que le garage ne fait pas
+ * (le gérant coche ligne par ligne, voir recherche/questions-gerant.md). Exemple : la recharge
+ * de climatisation exige une attestation de capacité pour les fluides frigorigènes.
  *
- * `prix` : texte libre fourni par le gérant (ex. « À partir de 89 € TTC »). `null` = non affiché.
+ * `prix` : texte fourni par le gérant, TOUJOURS TTC (ex. « À partir de 89 € TTC »).
+ * `null` = non affiché. `npm run verifier` refuse un prix sans « TTC ».
+ * `prixInclus` (facultatif) : pour un forfait, liste des opérations et pièces comprises, ex. ['Huile', 'Filtre à huile'].
+ * Rappel : les taux horaires et forfaits TTC doivent aussi être affichés à l'atelier (arrêté du 27 mars 1987).
  */
 export const services = [
   {
     slug: 'entretien-vidange',
     titre: 'Entretien et vidange',
+    titreCourt: 'Entretien, vidange',
     icone: 'droplet',
     resume: 'Vidange, filtres et révision selon le carnet d’entretien de votre véhicule.',
     intro:
@@ -32,7 +38,8 @@ export const services = [
       'Le niveau d’huile baisse entre deux vidanges',
     ],
     bonASavoir:
-      'Le règlement européen n° 461/2010 permet de faire réaliser l’entretien courant d’un véhicule encore sous garantie par le garage de son choix, même hors du réseau de la marque, sans perdre la garantie constructeur, à condition de respecter le programme d’entretien du constructeur et d’utiliser des pièces de qualité équivalente.',
+      // À revoir avant le 31/05/2028 (fin de validité du règlement 461/2010 prolongé).
+      'Le droit européen de la concurrence (règlement (UE) n° 461/2010, prolongé jusqu’au 31 mai 2028, et lignes directrices de la Commission) permet de faire réaliser l’entretien courant d’un véhicule encore sous garantie par le garage de son choix, même hors du réseau de la marque, sans perdre la garantie constructeur, à condition de respecter le programme d’entretien du constructeur et d’utiliser des pièces de qualité équivalente.',
     prix: null,
     valide: false,
   },
@@ -40,7 +47,7 @@ export const services = [
     slug: 'freinage',
     titre: 'Freinage',
     icone: 'disc',
-    resume: 'Plaquettes, disques, liquide de frein : votre sécurité avant tout.',
+    resume: 'Plaquettes, disques et liquide de frein.',
     intro:
       'Le système de freinage s’use à chaque arrêt. Plaquettes, disques et liquide de frein doivent être contrôlés régulièrement et remplacés dès qu’ils atteignent leur limite d’usure.',
     contenu: [
@@ -157,7 +164,7 @@ export const services = [
     slug: 'climatisation',
     titre: 'Climatisation',
     icone: 'snowflake',
-    resume: 'Contrôle, recharge et filtre d’habitacle pour un air frais et sain.',
+    resume: 'Contrôle, recharge et filtre d’habitacle.',
     intro:
       'Un circuit de climatisation perd naturellement un peu de fluide frigorigène avec les années. Moins de fluide, c’est moins de froid et plus de buée.',
     contenu: [
@@ -224,6 +231,7 @@ export const services = [
   {
     slug: 'echappement-depollution',
     titre: 'Échappement et dépollution',
+    titreCourt: 'Échappement, dépollution',
     icone: 'wind',
     resume: 'Silencieux, catalyseur, filtre à particules, vanne EGR.',
     intro:
@@ -247,6 +255,7 @@ export const services = [
   {
     slug: 'preparation-controle-technique',
     titre: 'Préparation au contrôle technique',
+    titreCourt: 'Préparation contrôle technique',
     icone: 'clipboard-check',
     resume: 'Vérification avant le passage et réparations pour la contre-visite.',
     intro:
@@ -260,7 +269,7 @@ export const services = [
       'Le procès-verbal mentionne des défaillances majeures ou critiques',
     ],
     bonASavoir:
-      'Pour une voiture particulière, le premier contrôle technique a lieu dans les 6 mois qui précèdent le 4e anniversaire de la première immatriculation, puis tous les 2 ans. En cas de défaillance majeure, la contre-visite doit être réalisée dans un délai de 2 mois.',
+      'Pour une voiture particulière, le premier contrôle technique a lieu dans les 6 mois qui précèdent le 4e anniversaire de la première immatriculation, puis tous les 2 ans. En cas de défaillance majeure ou critique, la contre-visite doit être réalisée dans les 2 mois. En cas de défaillance critique, le véhicule ne peut plus circuler après le jour du contrôle tant qu’il n’est pas réparé.',
     prix: null,
     valide: false,
   },

@@ -2,7 +2,6 @@
 import Base from '../../layouts/Base.astro';
 import Ariane from '../../components/Ariane.astro';
 import Icon from '../../components/Icon.astro';
-import AConfirmer from '../../components/AConfirmer.astro';
 import BoutonsContact from '../../components/BoutonsContact.astro';
 import BandeCTA from '../../components/BandeCTA.astro';
 import { servicesVisibles, BROUILLON, garage } from '../../lib/site.mjs';
@@ -13,17 +12,27 @@ export function getStaticPaths() {
 
 const { service: s } = Astro.props;
 const autres = servicesVisibles.filter((x) => x.slug !== s.slug).slice(0, 4);
+const devisHref = `/devis/?prestation=${s.slug}`;
+const titreCourt = s.titreCourt ?? s.titre;
 ---
 <Base
-  titre={`${s.titre} à Champs-sur-Yonne, près d’Auxerre`}
-  description={`${s.titre} chez ${garage.nom}, garage rue Robert Raclot à Champs-sur-Yonne (89290), au sud d’Auxerre. ${s.resume} Demandez votre devis en ligne.`}
+  titre={`${titreCourt} à Champs-sur-Yonne, près d’Auxerre`}
+  description={`${s.resume} ${garage.nom}, garage à Champs-sur-Yonne (89290), près d’Auxerre. Devis en ligne.`}
+  devisHref={devisHref}
+  prestation={s.titre}
 >
   <section class="entete-page">
     <div class="conteneur">
       <Ariane elements={[{ nom: 'Prestations', href: '/services/' }, { nom: s.titre }]} />
       <h1>{s.titre}</h1>
       <p>{s.intro}</p>
-      {!s.valide && BROUILLON && <p><span class="manquant">Prestation à confirmer par le gérant</span></p>}
+      {!s.valide && BROUILLON && <p><span class="manquant">Prestation à confirmer par le gérant (ligne par ligne)</span></p>}
+      {s.prix && s.valide && <p class="prix-entete">{s.prix}</p>}
+      <div class="groupe-boutons entete-page__actions">
+        <a href={devisHref} class="btn btn--accent" data-suivi="Clic devis" data-suivi-lieu="entete-prestation">
+          <Icon name="calendar-check" size={20} /> Devis {s.titre.toLowerCase()}
+        </a>
+      </div>
     </div>
   </section>
 
@@ -44,23 +53,18 @@ const autres = servicesVisibles.filter((x) => x.slug !== s.slug).slice(0, 4);
           <strong>Bon à savoir</strong>
           {s.bonASavoir}
         </div>
-
-        {s.prix && (
-          <AConfirmer valide={s.valide}>
-            <h2>Tarif</h2>
-            <p class="carte__prix">{s.prix}</p>
-          </AConfirmer>
-        )}
       </div>
 
       <aside class="aside-carte" aria-labelledby="titre-aside">
         <h2 id="titre-aside">Demander un devis</h2>
-        <p>Indiquez votre véhicule et votre besoin : la demande arrive directement au garage.</p>
+        {s.prix && s.valide && <p class="carte__prix">{s.prix}</p>}
+        {s.prix && s.valide && s.prixInclus?.length > 0 && <p class="champ__aide">Comprend : {s.prixInclus.join(', ')}.</p>}
+        <p>Indiquez votre véhicule et votre besoin : la demande est transmise au garage.</p>
         <div class="groupe-boutons">
-          <a href={`/devis/?prestation=${s.slug}`} class="btn btn--accent btn--large" data-suivi="Clic devis">
+          <a href={devisHref} class="btn btn--accent btn--large" data-suivi="Clic devis" data-suivi-lieu="aside-prestation">
             <Icon name="calendar-check" size={20} /> Devis {s.titre.toLowerCase()}
           </a>
-          <BoutonsContact variante="carte" devis={false} />
+          <BoutonsContact variante="carte" devis={false} prestation={s.titre} />
         </div>
       </aside>
     </div>
@@ -71,9 +75,7 @@ const autres = servicesVisibles.filter((x) => x.slug !== s.slug).slice(0, 4);
       <div class="conteneur">
         <h2>Autres prestations</h2>
         <ul class="liste-communes liste-communes--clair" style="margin-top: 16px;">
-          {autres.map((a) => (
-            <li><a href={`/services/${a.slug}/`}>{a.titre}</a></li>
-          ))}
+          {autres.map((a) => <li><a href={`/services/${a.slug}/`}>{a.titre}</a></li>)}
           <li><a href="/services/">Toutes les prestations</a></li>
         </ul>
       </div>

@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:production": "node scripts/verifier-infos.mjs --strict && PUBLIC_MODE=production astro build",
+    "build:production": "node scripts/verifier-infos.mjs --strict && PUBLIC_MODE=production astro build && node scripts/controle-build.mjs",
     "preview": "astro preview",
     "verifier": "node scripts/verifier-infos.mjs",
-    "captures": "node scripts/captures.mjs"
+    "captures": "node scripts/captures.mjs",
+    "controle": "node scripts/controle-build.mjs --brouillon",
+    "image-partage": "node scripts/image-partage.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

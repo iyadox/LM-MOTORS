@@ -388,7 +388,7 @@ Ni ces numéros, ni les noms des dirigeants des concurrents (Auto King, DLMTP…
    - *Constat* : aucun numéro public n'a été trouvé. Aujourd'hui, un client qui découvre LM Motors sur Vroomly ne peut pas l'appeler directement.
 3. **Formulaire de demande de devis ou de RDV en ligne.**
    - *Constat* : BM Autos reçoit ses devis via Vroomly en garage certifié, alors que LM Motors y est « non certifié ». Le site peut offrir un canal direct, sans intermédiaire.
-   - *Contenu* : immatriculation, modèle, kilométrage, prestation souhaitée, créneau, photo facultative, consentement RGPD.
+   - *Contenu* : immatriculation, modèle, kilométrage, prestation souhaitée, créneau, photo facultative, mention d’information RGPD (pas de case à cocher : la base légale est la réponse à la demande).
    - *Fonctionnement* : notification immédiate au garagiste par SMS ou e-mail, et accusé de réception automatique au client.
 4. **Suivi des demandes (leads).**
    - *Constat* : il n'existe aucune donnée de départ.

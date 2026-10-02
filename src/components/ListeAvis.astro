@@ -1,0 +1,34 @@
+---
+/**
+ * Avis publiés sur Google (src/data/avis.mjs), recopiés sans modification, les plus récents
+ * d'abord, quelle que soit la note. Informations obligatoires affichées sous la liste (D.111-17 C. conso).
+ */
+import { avis as tous } from '../data/avis.mjs';
+
+const avis = [...tous].sort((a, b) => b.date.localeCompare(a.date));
+
+interface Props {
+  max?: number;
+}
+const { max = avis.length } = Astro.props;
+const fmtDate = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+---
+{avis.length > 0 && (
+  <div class="grille grille--3">
+    {avis.slice(0, max).map((a) => (
+      <figure class="carte avis">
+        <p class="avis__note"><span aria-hidden="true">{'★'.repeat(a.note)}{'☆'.repeat(5 - a.note)}</span><span class="visuellement-cache">Note : {a.note} sur 5</span></p>
+        <blockquote><p>« {a.texte} »</p></blockquote>
+        <figcaption>
+          {a.auteur} · {fmtDate.format(new Date(a.date))} · {a.lien ? <a href={a.lien} target="_blank" rel="noopener">{a.source}</a> : a.source}
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+)}
+{avis.length > 0 && (
+  <p class="note-bas">
+    Avis recopiés sans modification depuis la fiche Google du garage, du plus récent au plus ancien, quelle que soit la note.
+    Ni Google ni le garage ne vérifient que leurs auteurs sont clients.
+  </p>
+)}

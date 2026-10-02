@@ -1,12 +1,16 @@
 /**
- * Communes de la zone de clientèle : une page « Garage près de … » chacune.
+ * Communes proches du garage : une page « Garage près de … » chacune.
  *
  * Données vérifiées (dossier §8) : code INSEE, codes postaux, population municipale INSEE
  * et intercommunalité, recoupés avec le jeu officiel Etalab « découpage administratif »
  * et la base des codes postaux de La Poste.
  *
- * `trajet` : temps et itinéraire depuis la commune, à MESURER (Google Maps ou ViaMichelin)
- * avant de le publier, ex. « environ 10 minutes par la D606 ». `null` = non affiché.
+ * `trajet` : temps et itinéraire depuis la commune, à MESURER (Google Maps ou ViaMichelin),
+ * ex. « Environ 10 minutes en voiture par la D606 ». `null` = non affiché.
+ *
+ * En production, une page commune n'est publiée que si elle apporte une information
+ * utile réelle (au minimum le trajet mesuré) : voir `pagePrete`. Sans cela, ce serait
+ * une page « satellite » sans valeur, pénalisée par Google.
  */
 const CA_AUXERROIS = 'Communauté d’agglomération de l’Auxerrois';
 
@@ -15,11 +19,12 @@ export const communes = [
     slug: 'garage-auxerre',
     nom: 'Auxerre',
     insee: '89024',
-    codesPostaux: ['89000'],
+    codesPostaux: ['89000', '89290'],
     population: 35097,
     epci: CA_AUXERROIS,
     faits: [
       'Auxerre est la préfecture de l’Yonne.',
+      'Le secteur de Vaux, à Auxerre, a le même code postal que Champs-sur-Yonne : 89290.',
       'La gare d’Auxerre est la gare d’Auxerre-Saint-Gervais.',
     ],
     trajet: null,
@@ -146,7 +151,9 @@ export const communeGarage = {
   codePostal: '89290',
   population: 1513,
   epci: CA_AUXERROIS,
-  // Communes partageant le code postal 89290 (vérifié, base La Poste).
-  // Le secteur de Vaux (Auxerre) n'est pas listé : les sources officielles divergent.
-  memeCodePostal: ['Augy', 'Escolives-Sainte-Camille', 'Irancy', 'Jussy', 'Quenne', 'Venoy', 'Vincelles', 'Vincelottes'],
+  // Communes partageant le code postal 89290 (dossier §8 ; base La Poste, Etalab).
+  memeCodePostal: ['Augy', 'Escolives-Sainte-Camille', 'Irancy', 'Jussy', 'Quenne', 'Venoy', 'Vincelles', 'Vincelottes', 'le secteur de Vaux à Auxerre'],
 };
+
+/** Une page commune n'est publiée en production que si son contenu utile est renseigné. */
+export const pagePrete = (c) => Boolean(c.trajet);

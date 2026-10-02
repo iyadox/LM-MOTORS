@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import Ariane from '../components/Ariane.astro';
+import Icon from '../components/Icon.astro';
+import BandeCTA from '../components/BandeCTA.astro';
+import { communesVisibles, de, garage } from '../lib/site.mjs';
+import { communeGarage } from '../data/communes.mjs';
+
+const fmt = new Intl.NumberFormat('fr-FR');
+const noms = communesVisibles.map((c) => c.nom);
+---
+<Base
+  titre="Communes proches : Auxerre et environs"
+  description={`${garage.nom}, garage automobile à Champs-sur-Yonne (89290), au sud d’Auxerre. Venir au garage depuis ${noms.slice(0, 5).join(', ')}${noms.length > 5 ? '…' : ''}`}
+>
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Communes proches' }]} />
+      <h1>Auxerre et environs</h1>
+      <p>Le garage est à Champs-sur-Yonne ({communeGarage.codePostal}), au sud d’Auxerre. Choisissez votre commune pour les informations utiles.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur">
+      {communesVisibles.length > 0 ? (
+        <div class="grille grille--3">
+          {communesVisibles.map((c) => (
+            <article class="carte carte--lien">
+              <span class="carte__icone"><Icon name="map-pin" size={24} /></span>
+              <h2 class="carte__titre"><a href={`/${c.slug}/`}>Garage près {de(c.nom)}</a></h2>
+              <p>{c.codesPostaux.join(', ')} · environ {fmt.format(Math.round(c.population / 50) * 50)} habitants</p>
+              <span class="carte__plus" aria-hidden="true">Voir <Icon name="arrow-right" size={18} /></span>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p>Les pages des communes voisines seront publiées dès que les trajets auront été mesurés.</p>
+      )}
+      <p class="note-bas">
+        Le code postal 89290 est partagé par plusieurs communes : {communeGarage.memeCodePostal.join(', ')} et Champs-sur-Yonne.
+        Le garage se trouve à Champs-sur-Yonne.
+      </p>
+    </div>
+  </section>
+
+  <BandeCTA />
+</Base>

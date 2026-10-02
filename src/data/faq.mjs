@@ -5,7 +5,7 @@
 export const faqGenerale = [
   {
     q: 'Puis-je faire entretenir ma voiture encore sous garantie ailleurs que chez le concessionnaire ?',
-    r: 'Oui. Le règlement européen n° 461/2010 permet de faire réaliser l’entretien courant d’un véhicule sous garantie par le garage de son choix, sans perdre la garantie constructeur, à condition de respecter le programme d’entretien du constructeur et d’utiliser des pièces de qualité équivalente. Conservez les factures, elles servent de preuve d’entretien.',
+    r: 'Oui. Le droit européen de la concurrence (règlement (UE) n° 461/2010, prolongé jusqu’au 31 mai 2028, et lignes directrices de la Commission) permet de faire réaliser l’entretien courant d’un véhicule sous garantie par le garage de son choix, sans perdre la garantie constructeur, à condition de respecter le programme d’entretien du constructeur et d’utiliser des pièces de qualité équivalente. Conservez les factures, elles servent de preuve d’entretien.',
   },
   {
     q: 'Quand faut-il changer la courroie de distribution ?',
@@ -13,7 +13,7 @@ export const faqGenerale = [
   },
   {
     q: 'Tous les combien faut-il passer le contrôle technique ?',
-    r: 'Pour une voiture particulière, le premier contrôle a lieu dans les 6 mois qui précèdent le 4e anniversaire de la première immatriculation, puis tous les 2 ans. En cas de défaillance majeure, la contre-visite doit être faite dans les 2 mois.',
+    r: 'Pour une voiture particulière, le premier contrôle a lieu dans les 6 mois qui précèdent le 4e anniversaire de la première immatriculation, puis tous les 2 ans. En cas de défaillance majeure ou critique, la contre-visite doit être faite dans les 2 mois. En cas de défaillance critique, le véhicule ne peut plus circuler après le jour du contrôle tant qu’il n’est pas réparé.',
   },
   {
     q: 'Un voyant s’est allumé au tableau de bord : que faire ?',

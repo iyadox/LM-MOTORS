@@ -1,46 +1,148 @@
 # Questionnaire pour le gérant de LM Motors
 
-*À remplir avec le gérant avant de construire le site. Toutes ces informations sont introuvables en ligne ou incertaines (voir `dossier-lm-motors.md`, §10). Rien ne sera publié sans sa validation.*
+*À remplir avec le gérant avant la mise en ligne. Toutes ces informations sont introuvables en ligne ou incertaines (voir `dossier-lm-motors.md`, §10). Rien n’est publié sans sa validation. Les réponses se reportent dans `src/data/*.mjs` ; `npm run verifier` indique ce qui manque encore.*
 
-## Identité et mentions légales
+## 1. Identité et mentions légales (Kbis ou extrait RNE à fournir)
 
-- [ ] Sous quelle structure exploitez-vous l'atelier de la rue Robert Raclot : la SAS LM MOTORS constituée en juin 2026 avec siège à Vergigny, l'entreprise individuelle M LUCAS BUSIERE (SIREN 989 261 177) ou une autre ? Pouvez-vous fournir un extrait Kbis ou un avis de situation SIRENE ?
-- [ ] Quels sont le SIRET de l'établissement de Champs-sur-Yonne, le RCS, le capital et le numéro de TVA intracommunautaire, pour les mentions légales ?
-- [ ] Qui est le dirigeant (et y a-t-il un directeur général ou des associés) ? Qui sera le directeur de publication du site ? Acceptez-vous que votre nom apparaisse sur le site ?
-- [ ] Depuis quand l'atelier est-il ouvert à Champs-sur-Yonne ? Avez-vous repris un ancien garage ou un local existant ?
+- [ ] Qui exploite l’atelier de la rue Robert Raclot : la SAS LM MOTORS constituée en juin 2026 (siège à Vergigny), l’entreprise individuelle M LUCAS BUSIERE (SIREN 989 261 177), ou une autre structure ? → `legal.statut` (« societe » ou « ei »)
+- [ ] Dénomination exacte, forme juridique et capital (société), ou nom et prénom (entrepreneur individuel).
+- [ ] Adresse du siège, SIRET de l’établissement de Champs-sur-Yonne, immatriculation (RCS ou RNE) telle qu’écrite sur le Kbis, numéro de TVA intracommunautaire (ou « non assujetti »).
+- [ ] Directeur de la publication : c’est le représentant légal (président de la SAS, ou l’entrepreneur lui-même). Accepte-t-il que son nom apparaisse ?
+- [ ] Médiateur de la consommation avec lequel le garage a signé : nom, adresse, site internet (obligatoire ; liste officielle : economie.gouv.fr/mediation-conso).
+- [ ] Depuis quand l’atelier est-il ouvert à Champs-sur-Yonne ? A-t-il repris un ancien garage ou local ?
 
-## Coordonnées et accès
+## 2. Adresse, contact et horaires
 
-- [ ] Quel est le numéro exact dans la rue Robert Raclot ? Dans quel bâtiment ou local (centre commercial, zone artisanale, à côté de quel commerce) ? Y a-t-il un parking client ?
-- [ ] Quels numéros de téléphone (fixe, mobile) et quel numéro WhatsApp le site doit-il afficher ? Quelle adresse e-mail professionnelle ?
-- [ ] Quels sont vos horaires d'ouverture exacts (jours, pause déjeuner, samedi) et vos périodes de fermeture annuelle ?
-- [ ] PagesJaunes semble vous situer à Vergigny : y avez-vous une fiche, et faut-il la corriger avec l'adresse de Champs-sur-Yonne ?
+- [ ] L’adresse « Rue Robert Raclot, 89290 Champs-sur-Yonne » est-elle exacte ? Quel numéro ? Quel bâtiment / local, quel repère (centre commercial Le Rami ?), quel parking ?
+- [ ] Téléphone à afficher (fixe / mobile), numéro WhatsApp, e-mail professionnel.
+- [ ] Le garage rappelle-t-il depuis le même numéro que celui affiché ?
+- [ ] Horaires exacts (jours, pause de midi, samedi).
+- [ ] Ouvert ou fermé les jours fériés ? Dates de fermeture prévues (congés) ?
 
-## Activité, prix, garanties
+## 3. Demandes de devis reçues par le site
 
-- [ ] Quelle est la liste réelle de vos prestations (vidange, freins, pneus, diagnostic électronique, climatisation, distribution, embrayage, carrosserie, dépannage/remorquage, vente de véhicules d'occasion, location, import, carte grise) ?
-- [ ] Quelles marques et quels types de véhicules prenez-vous en charge (voitures, utilitaires, motos, hybrides/électriques) ? De quels équipements disposez-vous ?
-- [ ] Avez-vous des forfaits ou des tarifs que vous acceptez d'afficher sur le site ?
-- [ ] Quels moyens de paiement acceptez-vous (CB, espèces, chèque) ? Les « facilités de paiement » affichées sur Vroomly sont-elles votre propre offre ou celle de la plateforme ?
-- [ ] Quelle garantie offrez-vous sur les pièces et la main-d'œuvre ? Les arguments affichés par Vroomly (garantie 1 an, devis instantané) ne doivent pas être repris sans votre confirmation.
-- [ ] Proposez-vous un véhicule de courtoisie, la prise et la remise du véhicule à domicile, ou des interventions à domicile ?
-- [ ] Avez-vous des qualifications, labels, agréments ou un réseau d'appartenance à mettre en avant ?
-- [ ] Combien de personnes travaillent à l'atelier ? Accueillez-vous des apprentis ?
+- [ ] À quelle adresse e-mail les demandes doivent-elles arriver ? Qui les traite, et sous quel délai peut-il répondre ?
+- [ ] Le devis est-il gratuit ? Sinon, quel prix TTC, et est-il déduit si les travaux sont faits ?
+- [ ] Combien de temps garder les demandes reçues ? (proposition : le temps de traiter la demande et la durée de validité du devis)
+- [ ] Après la mise en ligne : envoyer une demande test depuis un téléphone et confirmer sa réception (date).
 
-## Présence en ligne et avis
+## 4. Prestations : cocher ligne par ligne ce que le garage fait vraiment
 
-- [ ] Votre fiche Vroomly est-elle revendiquée ? Souhaitez-vous la garder, la compléter ou demander la certification ?
-- [ ] Avez-vous une fiche Google Business Profile (Google Maps) ? Si oui, pouvez-vous nous donner accès, et combien d'avis et quelle note avez-vous ? Acceptez-vous que nous citions certains avis réels ?
-- [ ] Avez-vous des pages Facebook, Instagram, TikTok, ou une boutique Leboncoin / La Centrale pour la vente de véhicules ?
-- [ ] Quel nom de domaine préférez-vous (par exemple lm-motors.fr ou lmmotors89.fr, à vérifier à l'AFNIC) ? Avez-vous déjà un domaine ou une adresse e-mail professionnelle ?
+*Seules les lignes cochées seront publiées. Une prestation sans aucune ligne cochée n’apparaît pas.*
 
-## Clientèle et fonctionnement du site
+### Entretien et vidange
 
-- [ ] Quelles communes considérez-vous comme votre zone de clientèle (Auxerre, Saint-Georges-sur-Baulche, Monéteau, Chevannes, Venoy, Augy, Saint-Bris-le-Vineux, Vincelles, Vermenton…) ?
-- [ ] Comment voulez-vous recevoir les demandes de devis et de RDV (SMS, e-mail, WhatsApp) ? Qui les traite, et dans quel délai pouvez-vous répondre ?
-- [ ] Quel est votre médiateur de la consommation, et qui assure l'hébergement et la conformité RGPD des données clients recueillies par les formulaires ?
-- [ ] Avez-vous un lien avec les autres entreprises automobiles de la rue Robert Raclot (Auto King, DLMTP, Avenue Detailing, Transakauto), par exemple un local partagé ?
+- [ ] Le garage propose « Entretien et vidange »
+  - [ ] Vidange de l’huile moteur et remplacement du filtre à huile
+  - [ ] Remplacement des filtres à air, d’habitacle et à carburant selon les échéances
+  - [ ] Contrôle et mise à niveau des liquides (refroidissement, frein, lave-glace)
+  - [ ] Contrôle des points de sécurité : freins, pneus, éclairage, essuie-glaces
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
 
-## Visuels
+### Freinage
 
-- [ ] Pouvez-vous fournir des photos réelles de l'atelier, de l'équipe et des véhicules, ainsi qu'un logo ?
+- [ ] Le garage propose « Freinage »
+  - [ ] Contrôle de l’usure des plaquettes et des disques
+  - [ ] Remplacement des plaquettes, des disques, des mâchoires ou des tambours
+  - [ ] Purge et remplacement du liquide de frein
+  - [ ] Contrôle du frein de stationnement
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Pneus
+
+- [ ] Le garage propose « Pneus »
+  - [ ] Montage et équilibrage des pneus
+  - [ ] Réparation de crevaison, lorsque l’emplacement et l’état du pneu le permettent
+  - [ ] Contrôle de l’usure et de la pression
+  - [ ] Permutation avant / arrière
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Diagnostic électronique
+
+- [ ] Le garage propose « Diagnostic électronique »
+  - [ ] Lecture des codes défauts enregistrés par les calculateurs
+  - [ ] Recherche de l’origine de la panne
+  - [ ] Contrôle des capteurs concernés
+  - [ ] Effacement des défauts après réparation
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Courroie de distribution
+
+- [ ] Le garage propose « Courroie de distribution »
+  - [ ] Remplacement du kit de distribution : courroie, galets et, selon le modèle, pompe à eau
+  - [ ] Contrôle de la chaîne de distribution sur les moteurs qui en sont équipés
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Embrayage
+
+- [ ] Le garage propose « Embrayage »
+  - [ ] Remplacement du kit d’embrayage : disque, mécanisme et butée
+  - [ ] Contrôle du volant moteur, notamment des volants bimasse
+  - [ ] Réglage ou purge de la commande d’embrayage
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Climatisation
+
+- [ ] Le garage propose « Climatisation »
+  - [ ] Contrôle de l’efficacité et de l’étanchéité du circuit
+  - [ ] Recharge en fluide frigorigène
+  - [ ] Remplacement du filtre d’habitacle
+  - [ ] Traitement des mauvaises odeurs
+  - [ ] Le garage détient-il l’attestation de capacité pour manipuler les fluides frigorigènes ? (obligatoire pour la recharge)
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Batterie et démarrage
+
+- [ ] Le garage propose « Batterie et démarrage »
+  - [ ] Test de la batterie et du circuit de charge
+  - [ ] Remplacement de la batterie
+  - [ ] Contrôle de l’alternateur et du démarreur
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Suspension et direction
+
+- [ ] Le garage propose « Suspension et direction »
+  - [ ] Contrôle et remplacement des amortisseurs
+  - [ ] Remplacement des rotules, biellettes, silentblocs et roulements
+  - [ ] Contrôle des jeux de direction
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Échappement et dépollution
+
+- [ ] Le garage propose « Échappement et dépollution »
+  - [ ] Remplacement de silencieux et de tuyaux d’échappement
+  - [ ] Contrôle du catalyseur et du filtre à particules (FAP)
+  - [ ] Nettoyage ou remplacement de la vanne EGR, selon le diagnostic
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+### Préparation au contrôle technique
+
+- [ ] Le garage propose « Préparation au contrôle technique »
+  - [ ] Vérification des principaux points contrôlés avant le passage
+  - [ ] Réparation des défaillances relevées pour la contre-visite
+  - [ ] Prix ou forfait TTC affichable ? Si forfait : opérations et pièces comprises
+
+- [ ] Marques et types de véhicules pris en charge (voitures, utilitaires, hybrides / électriques, motos ?). Équipements particuliers ?
+- [ ] Vente de véhicules d’occasion, dépannage / remorquage, véhicule de courtoisie, prise en charge à domicile ?
+
+## 5. Arguments à afficher (seulement s’ils sont vrais)
+
+- [ ] « Devis avant réparation » : Un devis détaillé vous est remis avant toute réparation.
+- [ ] « Toutes marques » : Entretien et réparation de véhicules légers, quelle que soit la marque.
+- [ ] « Interlocuteur unique » : Vous parlez directement au mécanicien qui intervient sur votre voiture.
+- [ ] « Paiement en plusieurs fois » : Des facilités de paiement pour étaler les grosses réparations.
+- [ ] Moyens de paiement acceptés. Les « facilités de paiement » affichées sur Vroomly sont-elles une offre du garage ?
+- [ ] Qualifications, labels, réseau d’appartenance ? Nombre de personnes à l’atelier, apprentis ?
+
+## 6. Présence en ligne et avis
+
+- [ ] Fiche Google Business Profile existante ? (sinon : la créer ensemble). Accès, lien « Demander des avis ».
+- [ ] Fiche Vroomly : revendiquée ? À compléter ? PagesJaunes situe « Lm Motors » à Vergigny : à corriger ?
+- [ ] Pages Facebook / Instagram, boutique Leboncoin ou La Centrale ?
+- [ ] Accord pour recopier sur le site les avis Google les plus récents, quelle que soit la note ?
+
+## 7. Zone et visuels
+
+- [ ] Communes d’où viennent les clients ? Pages prévues : Auxerre, Saint-Georges-sur-Baulche, Monéteau, Appoigny, Chevannes, Perrigny, Venoy, Saint-Bris-le-Vineux, Augy, Vincelles, Escolives-Sainte-Camille, Vermenton.
+- [ ] Photos réelles : façade visible depuis la rue, atelier, équipe ; logo s’il existe.
+- [ ] Nom de domaine souhaité (ex. lm-motors.fr, à vérifier à l’AFNIC).

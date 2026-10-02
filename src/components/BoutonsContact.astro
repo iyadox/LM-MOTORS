@@ -9,33 +9,45 @@ interface Props {
   variante?: 'hero' | 'carte' | 'barre' | 'entete' | 'cta';
   devis?: boolean;
   whatsapp?: boolean;
+  /** Lien de la demande de devis (ex. pré-rempli avec la prestation). */
+  devisHref?: string;
+  /** Prestation de la page, pour le message WhatsApp pré-rempli. */
+  prestation?: string;
 }
-const { variante = 'hero', devis = true, whatsapp = true } = Astro.props;
+const { variante = 'hero', devis = true, whatsapp = true, devisHref = '/devis/', prestation } = Astro.props;
 const compact = variante === 'barre' || variante === 'entete';
 const classeLarge = variante === 'carte' ? 'btn--large' : '';
-const appelSombre = variante === 'cta';
+const surOrange = variante === 'cta';
+const lienWa = lienWhatsAppDevis(prestation);
 // Sans téléphone affiché, le devis devient l'action principale.
 const appelAffiche = Boolean(lienAppel) || (BROUILLON && variante !== 'barre');
 const devisPrincipal = !appelAffiche;
+const libelleAppel = compact ? 'Appeler' : `Appeler le ${garage.telephone}`;
 ---
 {lienAppel ? (
   <a
     href={lienAppel}
-    class:list={['btn', appelSombre ? 'btn--sombre' : 'btn--accent', classeLarge, variante === 'entete' && 'btn--entete-appel']}
+    class:list={['btn', surOrange ? 'btn--sombre' : 'btn--accent', classeLarge, variante === 'entete' && 'btn--entete-appel']}
+    aria-label={compact ? `Appeler le garage au ${garage.telephone}` : undefined}
     data-suivi="Appel"
+    data-suivi-lieu={variante}
   >
     <Icon name="phone" size={20} />
-    <span class="btn__libelle">{compact ? 'Appeler' : `Appeler le ${garage.telephone}`}</span>
+    <span class="btn__libelle">{libelleAppel}</span>
   </a>
 ) : BROUILLON && variante !== 'barre' ? (
-  <span class:list={['btn', appelSombre ? 'btn--sombre' : 'btn--accent', classeLarge, variante === 'entete' && 'btn--entete-appel']} aria-disabled="true" title="Numéro de téléphone à compléter dans src/data/garage.mjs">
+  <span
+    class:list={['btn', surOrange ? 'btn--sombre' : 'btn--accent', classeLarge, variante === 'entete' && 'btn--entete-appel']}
+    aria-disabled="true"
+    title="Numéro de téléphone à compléter dans src/data/garage.mjs"
+  >
     <Icon name="phone" size={20} />
     <span class="btn__libelle">{compact ? 'Tél. à compléter' : 'Téléphone à compléter'}</span>
   </span>
 ) : null}
 
-{whatsapp && lienWhatsAppDevis && (
-  <a href={lienWhatsAppDevis} class:list={['btn', 'btn--whatsapp', classeLarge]} data-suivi="WhatsApp" target="_blank" rel="noopener">
+{whatsapp && lienWa && (
+  <a href={lienWa} class:list={['btn', 'btn--whatsapp', classeLarge]} data-suivi="WhatsApp" data-suivi-lieu={variante} target="_blank" rel="noopener">
     <Icon name="message-circle" size={20} />
     <span class="btn__libelle">WhatsApp</span>
   </a>
@@ -43,9 +55,10 @@ const devisPrincipal = !appelAffiche;
 
 {devis && (
   <a
-    href="/devis/"
-    class:list={['btn', devisPrincipal ? (appelSombre ? 'btn--sombre' : 'btn--accent') : 'btn--contour', classeLarge, variante === 'entete' && 'btn--entete-devis']}
+    href={devisHref}
+    class:list={['btn', devisPrincipal ? (surOrange ? 'btn--sombre' : 'btn--accent') : 'btn--contour', classeLarge, variante === 'entete' && 'btn--entete-devis']}
     data-suivi="Clic devis"
+    data-suivi-lieu={variante}
   >
     <Icon name="calendar-check" size={20} />
     <span class="btn__libelle">{variante === 'barre' ? 'Devis' : compact ? 'Devis / RDV' : 'Demander un devis ou un RDV'}</span>

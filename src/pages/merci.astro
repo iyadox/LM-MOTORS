@@ -2,18 +2,40 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import BoutonsContact from '../components/BoutonsContact.astro';
-import { garage } from '../lib/site.mjs';
+import { BROUILLON, garage, lienAppel } from '../lib/site.mjs';
 ---
-<Base titre="Demande envoyée" description="Votre demande a bien été transmise au garage LM Motors." noindex>
+<Base titre="Demande envoyée" description={`Votre demande a bien été transmise au garage ${garage.nom}.`} noindex>
   <section class="entete-page">
     <div class="conteneur">
       <p class="surtitre"><Icon name="check" size={18} /> Demande envoyée</p>
-      <h1>Merci, c’est reçu !</h1>
-      <p>Votre demande a été transmise à {garage.nom}. Le garage revient vers vous selon le moyen de contact que vous avez choisi.</p>
+      <h1>{BROUILLON ? 'Demande de test enregistrée' : 'Merci, c’est envoyé !'}</h1>
+      <p>
+        {BROUILLON
+          ? 'Version de travail : cette demande sert à vérifier la réception. Elle n’est pas encore traitée par le garage.'
+          : `Votre demande a été transmise à ${garage.nom}. Le garage revient vers vous selon le moyen de contact que vous avez choisi.`}
+      </p>
     </div>
   </section>
   <section class="section">
     <div class="conteneur" style="max-width: 760px;">
+      <div class="recapitulatif" data-recapitulatif hidden>
+        <h2>Récapitulatif</h2>
+        <dl>
+          <dt>Prestation</dt><dd data-recap="prestation"></dd>
+          <dt>Véhicule</dt><dd data-recap="vehicule"></dd>
+          <dt>Recontact</dt><dd data-recap="recontact"></dd>
+          <dt>Votre numéro</dt><dd data-recap="telephone"></dd>
+        </dl>
+        <p class="champ__aide">Une erreur dans votre numéro ? <a href="/devis/">Refaites la demande</a>{lienAppel && <> ou appelez le <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="merci">{garage.telephone}</a></>}.</p>
+      </div>
+
+      {lienAppel && (
+        <p class="encadre">
+          <strong>Pour reconnaître l’appel du garage</strong>
+          Le garage peut vous rappeler depuis le {garage.telephone}. <a href="/lm-motors.vcf" download>Enregistrer ce numéro dans mes contacts</a>.
+        </p>
+      )}
+
       <h2>En attendant</h2>
       <ul class="liste-coches">
         <li><Icon name="check" size={20} /> <span>Gardez votre carnet d’entretien et vos dernières factures à portée de main.</span></li>
@@ -27,3 +49,21 @@ import { garage } from '../lib/site.mjs';
     </div>
   </section>
 </Base>
+
+<script>
+  // Récapitulatif de la demande (gardé le temps de l'affichage, puis effacé : il contient un numéro).
+  try {
+    const demande = JSON.parse(sessionStorage.getItem('lm-demande') || 'null');
+    sessionStorage.removeItem('lm-demande');
+    const bloc = document.querySelector<HTMLElement>('[data-recapitulatif]');
+    if (demande && bloc) {
+      for (const [cle, valeur] of Object.entries(demande)) {
+        const dd = bloc.querySelector(`[data-recap="${cle}"]`);
+        if (dd) dd.textContent = String(valeur || '—');
+      }
+      bloc.hidden = false;
+    }
+  } catch {
+    /* pas de récapitulatif : le texte général suffit */
+  }
+</script>

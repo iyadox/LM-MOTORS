@@ -4,6 +4,9 @@ import Base from '../layouts/Base.astro';
 import { listerManques, ORDRE_NIVEAUX } from '../data/manques.mjs';
 import { BROUILLON } from '../lib/site.mjs';
 
+// Liste interne : jamais publiée en production (elle reste disponible avec `npm run verifier`).
+if (!BROUILLON) return Astro.redirect('/');
+
 const manques = listerManques().sort((a, b) => ORDRE_NIVEAUX[a.niveau] - ORDRE_NIVEAUX[b.niveau]);
 const compte = (n) => manques.filter((m) => m.niveau === n).length;
 ---
@@ -13,7 +16,7 @@ const compte = (n) => manques.filter((m) => m.niveau === n).length;
       <p class="surtitre">Version de travail</p>
       <h1>Avant la mise en ligne</h1>
       <p>
-        Le site n’affiche que des informations vérifiées. Tout ce qui est encore inconnu est listé ici :
+        Seules les informations vérifiées sont destinées à être publiées. Tout ce qui est encore inconnu ou à confirmer est listé ici :
         à compléter dans <code>src/data/garage.mjs</code> (et <code>services.mjs</code>, <code>communes.mjs</code>) avec le gérant.
       </p>
     </div>
@@ -21,13 +24,12 @@ const compte = (n) => manques.filter((m) => m.niveau === n).length;
 
   <section class="section">
     <div class="conteneur">
-      {!BROUILLON && <p>Ce site est en mode production.</p>}
       <div class="chiffres" style="margin-bottom: 32px;">
         <div class="chiffre"><strong>{compte('bloquant')}</strong><span>bloquant(s) : empêchent la mise en ligne</span></div>
         <div class="chiffre"><strong>{compte('important')}</strong><span>important(s) : efficacité et crédibilité</span></div>
         <div class="chiffre"><strong>{compte('utile')}</strong><span>utile(s) : à faire dès que possible</span></div>
       </div>
-      <div style="overflow-x: auto;">
+      <div class="tableau-defilant" role="region" aria-label="Informations à compléter" tabindex="0">
         <table class="tableau-brouillon">
           <thead>
             <tr><th scope="col">Niveau</th><th scope="col">Rubrique</th><th scope="col">Information</th><th scope="col">Où la renseigner</th></tr>

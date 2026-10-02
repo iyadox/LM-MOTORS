@@ -2,13 +2,18 @@
 import Base from '../layouts/Base.astro';
 import Ariane from '../components/Ariane.astro';
 import Manquant from '../components/Manquant.astro';
-import AConfirmer from '../components/AConfirmer.astro';
-import { garage, ligneRue, ligneVille, lienEmail } from '../lib/site.mjs';
+import { BROUILLON, garage, adresseComplete, lienEmail } from '../lib/site.mjs';
 
 const L = garage.legal;
 const F = garage.formulaire;
+const H = garage.hebergeur;
+// Qui reçoit techniquement les demandes : l'hébergeur (Netlify Forms) ou un service tiers.
+const receveur = F.endpoint ? F.prestataire : H.nom;
+const transfert = F.endpoint ? null : H.transfertHorsUE;
+const responsable = L.raisonSociale ? (L.statut === 'ei' ? `${L.raisonSociale} EI` : L.raisonSociale) : null;
+const netlifyForms = !F.endpoint;
 ---
-<Base titre="Politique de confidentialité" description="Comment LM Motors utilise et protège les informations transmises par le formulaire de demande de devis.">
+<Base titre="Politique de confidentialité" description={`Comment ${garage.nom} utilise et protège les informations transmises par le formulaire de demande de devis.`}>
   <section class="entete-page">
     <div class="conteneur">
       <Ariane elements={[{ nom: 'Confidentialité' }]} />
@@ -20,17 +25,22 @@ const F = garage.formulaire;
   <section class="section">
     <div class="conteneur prose">
       <h2>Responsable du traitement</h2>
-      <p>
-        {L.raisonSociale ?? <Manquant quoi="raison sociale" />} ({garage.nom}), {ligneRue}, {ligneVille}.
-      </p>
+      <p>{responsable ?? <Manquant quoi="dénomination sociale ou nom de l’entrepreneur" />} ({garage.nom}), {adresseComplete}.</p>
 
       <h2>Données collectées</h2>
       <p>Uniquement ce que vous saisissez dans le formulaire de demande de devis ou de rendez-vous :</p>
       <ul>
-        <li>nom, téléphone, et si vous les indiquez : e-mail, commune ;</li>
-        <li>informations sur le véhicule : marque, modèle, et si vous les indiquez : immatriculation, kilométrage ;</li>
-        <li>description de votre besoin, date souhaitée, photo éventuelle.</li>
+        <li>nom et téléphone, et si vous les indiquez : e-mail, commune ;</li>
+        <li>votre véhicule (marque, modèle), et si vous les indiquez : immatriculation, kilométrage ;</li>
+        <li>la description de votre besoin, la date souhaitée, une photo éventuelle ;</li>
+        <li>la page du site par laquelle vous êtes arrivé et le site d’où vous venez (par exemple un moteur de recherche), pour savoir comment les clients trouvent le garage.</li>
       </ul>
+      {netlifyForms && (
+        <p>
+          Le service qui reçoit le formulaire enregistre aussi automatiquement des données techniques : adresse IP, type de
+          navigateur et page d’origine. Elles servent notamment au filtrage des envois indésirables.
+        </p>
+      )}
 
       <h2>Finalité et base légale</h2>
       <p>
@@ -41,29 +51,37 @@ const F = garage.formulaire;
 
       <h2>Destinataires</h2>
       <p>
-        Le garage {garage.nom}, et l’hébergeur du site qui reçoit les demandes pour le compte du garage
-        ({garage.hebergeur.nom ?? <Manquant quoi="hébergeur" />}).
+        Le garage {garage.nom}, et {F.endpoint ? 'le service de formulaires' : 'l’hébergeur du site'} qui reçoit les demandes pour le compte du garage
+        {' '}({receveur ?? <Manquant quoi={F.endpoint ? 'nom du service de formulaires' : 'hébergeur'} />}){netlifyForms ? ', ainsi que son service de filtrage des envois indésirables (Akismet)' : ''}.
+        {transfert && transfert !== 'non' && <>{' '}Ces données peuvent être hébergées hors de l’Union européenne : {transfert}.</>}
+        {garage.whatsapp && <>{' '}Si vous choisissez d’écrire par WhatsApp, votre message transite par ce service (Meta).</>}
       </p>
 
-      <h2>Durée de conservation</h2>
-      <AConfirmer valide={F.dureeConservationValidee}>
-        <p>Les demandes sont conservées au plus {F.dureeConservation}, puis supprimées.</p>
-      </AConfirmer>
+      {(F.dureeConservation || BROUILLON) && (
+        <>
+          <h2>Durée de conservation</h2>
+          <p>
+            {F.dureeConservation
+              ? <>Les demandes sont conservées au plus {F.dureeConservation}, puis supprimées.</>
+              : <Manquant quoi="durée de conservation décidée par le gérant" />}
+          </p>
+        </>
+      )}
 
       <h2>Vos droits</h2>
       <p>
         Vous pouvez demander l’accès à vos données, leur rectification, leur effacement, la limitation du traitement,
-        vous y opposer ou demander leur portabilité, en écrivant à
-        {garage.email ? <a href={lienEmail(garage.email, 'Données personnelles')}>{garage.email}</a> : <Manquant quoi="e-mail de contact" />}
-        ou à l’adresse du garage. Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une
+        vous y opposer ou demander leur portabilité, en écrivant
+        {garage.email ? <>{' '}à <a href={lienEmail(garage.email, 'Données personnelles')}>{garage.email}</a> ou</> : BROUILLON && <>{' '}(<Manquant quoi="e-mail de contact" />)</>}
+        {' '}par courrier : {adresseComplete}. Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une
         réclamation à la CNIL (<a href="https://www.cnil.fr" rel="noopener">www.cnil.fr</a>).
       </p>
 
       <h2>Cookies et statistiques</h2>
       <p>
         Ce site ne dépose pas de cookie publicitaire ni de cookie de suivi. Les polices de caractères sont hébergées sur le site
-        lui-même.
-        {garage.analytics.plausibleDomain && ' La fréquentation est mesurée avec Plausible Analytics, un outil sans cookie qui ne collecte aucune donnée personnelle.'}
+        lui-même.{' '}
+        {garage.analytics.plausibleDomain && <>La fréquentation est mesurée avec Plausible Analytics, sans cookie ni stockage sur votre appareil : votre adresse IP et votre navigateur servent seulement à calculer un identifiant anonyme renouvelé chaque jour, et ne sont pas conservés. Les statistiques sont agrégées et utilisées uniquement par le garage.{' '}</>}
         Les liens d’itinéraire ouvrent Google Maps dans une nouvelle page, uniquement si vous cliquez dessus.
       </p>
     </div>

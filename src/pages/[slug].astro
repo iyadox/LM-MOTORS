@@ -1,33 +1,46 @@
 ---
-/** Pages locales « Garage près de <commune> » (données vérifiées : src/data/communes.mjs). */
+/**
+ * Pages locales « Garage près de <commune> » (données vérifiées : src/data/communes.mjs).
+ * En production, seules les pages qui apportent une information utile réelle (trajet mesuré)
+ * sont générées : voir pagePrete() dans communes.mjs.
+ */
 import Base from '../layouts/Base.astro';
 import Ariane from '../components/Ariane.astro';
 import Icon from '../components/Icon.astro';
 import Manquant from '../components/Manquant.astro';
 import BoutonsContact from '../components/BoutonsContact.astro';
 import BandeCTA from '../components/BandeCTA.astro';
-import { BROUILLON, garage, acces, servicesVisibles, ligneRue, ligneVille } from '../lib/site.mjs';
-import { communes } from '../data/communes.mjs';
+import { BROUILLON, garage, acces, servicesVisibles, communesVisibles, ligneRue, rueTexte, ligneVille, de, lienItineraireDepuis } from '../lib/site.mjs';
 
 export function getStaticPaths() {
-  return communes.map((commune) => ({ params: { slug: commune.slug }, props: { commune } }));
+  return communesVisibles.map((commune) => ({ params: { slug: commune.slug }, props: { commune } }));
 }
 
 const { commune: c } = Astro.props;
 const fmt = new Intl.NumberFormat('fr-FR');
 const cp = c.codesPostaux.join(', ');
-const itineraire = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${c.nom} ${c.codesPostaux[0]}`)}&destination=${encodeURIComponent(`${ligneRue}, ${ligneVille}`)}`;
-const autres = communes.filter((x) => x.slug !== c.slug);
+const itineraire = lienItineraireDepuis(`${c.nom} ${c.codesPostaux[0]}`);
+const autres = communesVisibles.filter((x) => x.slug !== c.slug);
+const devisHref = `/devis/?commune=${encodeURIComponent(c.nom)}`;
 ---
 <Base
-  titre={`Garage auto près de ${c.nom} (${c.codesPostaux[0]})`}
-  description={`Garage automobile près de ${c.nom} : ${garage.nom}, rue Robert Raclot à Champs-sur-Yonne, au sud d’Auxerre. Entretien, réparation, diagnostic. Devis et rendez-vous en ligne.`}
+  titre={`Garage près ${de(c.nom)} (${c.codesPostaux[0]})`}
+  description={`Garage auto près ${de(c.nom)} : ${garage.nom}, à Champs-sur-Yonne (89290), au sud d’Auxerre. Itinéraire et demande de devis en ligne.`}
+  devisHref={devisHref}
 >
   <section class="entete-page">
     <div class="conteneur">
-      <Ariane elements={[{ nom: 'Zone d’intervention', href: '/zone-intervention/' }, { nom: c.nom }]} />
-      <h1>Garage auto près de {c.nom}</h1>
-      <p>Vous habitez {c.nom} ({cp}) ? {garage.nom} est un garage automobile installé rue Robert Raclot, à Champs-sur-Yonne, {acces.situation}.</p>
+      <Ariane elements={[{ nom: 'Communes proches', href: '/communes-proches/' }, { nom: c.nom }]} />
+      <h1>Garage auto près {de(c.nom)}</h1>
+      <p>Vous habitez {c.nom} ({cp}) ? {garage.nom} est un garage automobile installé {rueTexte}, à Champs-sur-Yonne, {acces.situation}.</p>
+      <div class="groupe-boutons entete-page__actions">
+        <a href={itineraire} class="btn btn--accent" target="_blank" rel="noopener" data-suivi="Itinéraire" data-suivi-lieu="commune">
+          <Icon name="navigation" size={20} /> Itinéraire depuis {c.nom}
+        </a>
+        <a href={devisHref} class="btn btn--contour" data-suivi="Clic devis" data-suivi-lieu="commune">
+          <Icon name="calendar-check" size={20} /> Demander un devis
+        </a>
+      </div>
     </div>
   </section>
 
@@ -35,16 +48,13 @@ const autres = communes.filter((x) => x.slug !== c.slug);
     <div class="conteneur deux-colonnes">
       <div class="prose">
         <h2>Venir au garage depuis {c.nom}</h2>
-        {c.trajet ? <p>{c.trajet}.</p> : BROUILLON && <p><Manquant quoi={`temps de trajet mesuré depuis ${c.nom}`} /></p>}
+        {c.trajet ? <p class="trajet"><Icon name="navigation" size={20} /> {c.trajet}.</p> : BROUILLON && <p><Manquant quoi={`temps de trajet mesuré depuis ${c.nom} (sans lui, la page n’est pas publiée)`} /></p>}
         <p>Adresse du garage : <strong>{ligneRue}, {ligneVille}</strong>.</p>
-        <a href={itineraire} class="btn btn--sombre" target="_blank" rel="noopener" data-suivi="Itinéraire">
-          <Icon name="navigation" size={20} /> Itinéraire depuis {c.nom}
-        </a>
 
         <h2>{c.nom} en bref</h2>
         <div class="chiffres">
           <div class="chiffre"><strong>{fmt.format(c.population)}</strong><span>habitants (population municipale, INSEE)</span></div>
-          <div class="chiffre"><strong>{cp}</strong><span>code postal</span></div>
+          <div class="chiffre"><strong>{cp}</strong><span>{c.codesPostaux.length > 1 ? 'codes postaux' : 'code postal'}</span></div>
         </div>
         <ul class="liste-coches" style="margin-top: 20px;">
           <li><Icon name="check" size={20} /> <span>{c.nom} fait partie de la {c.epci}.</span></li>
@@ -63,22 +73,24 @@ const autres = communes.filter((x) => x.slug !== c.slug);
 
       <aside class="aside-carte" aria-labelledby="titre-aside">
         <h2 id="titre-aside">Devis ou rendez-vous</h2>
-        <p>Décrivez votre besoin en ligne : la demande arrive directement au garage.</p>
+        <p>Décrivez votre besoin en ligne : la demande est transmise au garage.</p>
         <div class="groupe-boutons">
-          <BoutonsContact variante="carte" />
+          <BoutonsContact variante="carte" devisHref={devisHref} />
         </div>
       </aside>
     </div>
   </section>
 
-  <section class="section section--gris section--serree">
-    <div class="conteneur">
-      <h2>Autres communes de la zone</h2>
-      <ul class="liste-communes liste-communes--clair" style="margin-top: 16px;">
-        {autres.map((a) => <li><a href={`/${a.slug}/`}>{a.nom}</a></li>)}
-      </ul>
-    </div>
-  </section>
+  {autres.length > 0 && (
+    <section class="section section--gris section--serree">
+      <div class="conteneur">
+        <h2>Autres communes proches</h2>
+        <ul class="liste-communes liste-communes--clair" style="margin-top: 16px;">
+          {autres.map((a) => <li><a href={`/${a.slug}/`}>{a.nom}</a></li>)}
+        </ul>
+      </div>
+    </section>
+  )}
 
-  <BandeCTA titre={`Votre voiture, de ${c.nom} à Champs-sur-Yonne`} />
+  <BandeCTA titre={`Votre voiture, ${de(c.nom)} à Champs-sur-Yonne`} />
 </Base>

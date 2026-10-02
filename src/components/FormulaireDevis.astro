@@ -1,19 +1,24 @@
 ---
 /**
  * Formulaire de demande de devis / rendez-vous.
- * Par défaut : Netlify Forms (aucun serveur à gérer, notification e-mail au garage).
- * Fonctionne sans JavaScript (envoi classique) ; avec JavaScript : validation, envoi
- * sans rechargement, suivi de conversion et alternative WhatsApp.
+ * Par défaut : Netlify Forms (aucun serveur à gérer ; activer « Form detection » dans Netlify).
+ * Fonctionne sans JavaScript (envoi classique) ; avec JavaScript : validation champ par champ,
+ * photo compressée, envoi sans rechargement, objet d'e-mail explicite, provenance du client,
+ * suivi de conversion et alternative WhatsApp.
  */
 import Icon from './Icon.astro';
-import { BROUILLON, garage, servicesVisibles, lienAppel } from '../lib/site.mjs';
+import Manquant from './Manquant.astro';
+import { BROUILLON, garage, servicesVisibles, lienAppel, whatsappE164 } from '../lib/site.mjs';
 import { communes, communeGarage } from '../data/communes.mjs';
 
 const endpoint = garage.formulaire.endpoint;
 const netlify = !endpoint;
 const nomsCommunes = [communeGarage.nom, ...communes.map((c) => c.nom)];
+const D = garage.devis;
+
 ---
 <form
+  id="formulaire"
   class="formulaire"
   name="devis"
   method="POST"
@@ -24,78 +29,52 @@ const nomsCommunes = [communeGarage.nom, ...communes.map((c) => c.nom)];
   data-formulaire-devis
   data-endpoint={endpoint || '/'}
   data-brouillon={BROUILLON ? 'true' : undefined}
-  data-whatsapp={garage.whatsapp || undefined}
+  data-whatsapp={whatsappE164 ? whatsappE164.slice(1) : undefined}
   data-telephone={garage.telephone || undefined}
   data-telephone-lien={lienAppel || undefined}
+  data-email={garage.email || undefined}
   data-nom-garage={garage.nom}
   novalidate
 >
   {netlify && <input type="hidden" name="form-name" value="devis" />}
+  <input type="hidden" name="subject" value={`Nouvelle demande de devis – site ${garage.nom}`} />
+  <input type="hidden" name="provenance" value="" />
+  <input type="hidden" name="page_entree" value="" />
+  <input type="hidden" name="remarque" value="" />
   <p class="pot-de-miel" aria-hidden="true">
     <label>Ne pas remplir ce champ <input name="site-web" tabindex="-1" autocomplete="off" /></label>
   </p>
 
+  {BROUILLON && (
+    <div class="message-formulaire" data-type="info">
+      Version de travail : ce formulaire sert à tester la réception des demandes. Les demandes envoyées depuis cette version ne sont pas encore traitées par le garage.
+    </div>
+  )}
+
+  <div class="message-formulaire" data-message-formulaire role="alert" tabindex="-1" hidden></div>
+
+  <p class="champ__aide formulaire__consigne">Tous les champs sont obligatoires, sauf ceux marqués « facultatif ».</p>
+
   <fieldset>
-    <legend>Votre besoin</legend>
+    <legend>Votre demande</legend>
     <div class="champ">
       <label for="prestation">Prestation souhaitée</label>
-      <select id="prestation" name="prestation" required>
+      <select id="prestation" name="prestation" required aria-describedby="err-prestation">
         <option value="">Choisissez…</option>
         {servicesVisibles.map((s) => <option value={s.titre} data-slug={s.slug}>{s.titre}</option>)}
         <option value="Autre / je ne sais pas">Autre / je ne sais pas</option>
       </select>
+      <p class="champ__erreur" id="err-prestation" hidden></p>
+    </div>
+    <div class="champ">
+      <label for="vehicule">Votre véhicule</label>
+      <input id="vehicule" name="vehicule" type="text" required autocomplete="off" placeholder="Ex. : Peugeot 208 1.2 PureTech, 2019" aria-describedby="aide-vehicule err-vehicule" />
+      <span class="champ__aide" id="aide-vehicule">Marque et modèle (et l’année si vous la connaissez).</span>
+      <p class="champ__erreur" id="err-vehicule" hidden></p>
     </div>
     <div class="champ">
       <label for="message">Décrivez le problème ou la demande <span class="facultatif">(facultatif)</span></label>
-      <textarea id="message" name="message" rows="4" placeholder="Ex. : bruit à l’avant au freinage depuis une semaine, voyant moteur allumé…"></textarea>
-    </div>
-    <div class="champ">
-      <label for="photo">Photo <span class="facultatif">(facultatif)</span></label>
-      <input id="photo" name="photo" type="file" accept="image/*" aria-describedby="aide-photo" />
-      <span class="champ__aide" id="aide-photo">Un voyant, un dégât, une pièce : une photo aide à préparer le devis. 8 Mo maximum.</span>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Votre véhicule</legend>
-    <div class="champs-ligne">
-      <div class="champ">
-        <label for="marque">Marque</label>
-        <input id="marque" name="marque" type="text" required autocomplete="off" placeholder="Ex. : Peugeot" />
-      </div>
-      <div class="champ">
-        <label for="modele">Modèle</label>
-        <input id="modele" name="modele" type="text" required autocomplete="off" placeholder="Ex. : 208 1.2 PureTech" />
-      </div>
-    </div>
-    <div class="champs-ligne">
-      <div class="champ">
-        <label for="immatriculation">Immatriculation <span class="facultatif">(facultatif)</span></label>
-        <input id="immatriculation" name="immatriculation" type="text" autocomplete="off" autocapitalize="characters" placeholder="AB-123-CD" maxlength="12" />
-      </div>
-      <div class="champ">
-        <label for="kilometrage">Kilométrage <span class="facultatif">(facultatif)</span></label>
-        <input id="kilometrage" name="kilometrage" type="text" inputmode="numeric" placeholder="Ex. : 98 000" maxlength="9" />
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Rendez-vous souhaité</legend>
-    <p class="champ__aide" style="margin: 0;">Facultatif : le créneau vous sera confirmé par le garage.</p>
-    <div class="champs-ligne">
-      <div class="champ">
-        <label for="date">Date souhaitée <span class="facultatif">(facultatif)</span></label>
-        <input id="date" name="date_souhaitee" type="date" />
-      </div>
-      <div class="champ" role="group" aria-labelledby="libelle-creneau">
-        <span class="champ__libelle" id="libelle-creneau">Moment de la journée</span>
-        <div class="choix">
-          <label><input type="radio" name="creneau" value="Matin" /> Matin</label>
-          <label><input type="radio" name="creneau" value="Après-midi" /> Après-midi</label>
-          <label><input type="radio" name="creneau" value="Indifférent" checked /> Indifférent</label>
-        </div>
-      </div>
+      <textarea id="message" name="message" rows="3" placeholder="Ex. : bruit à l’avant au freinage depuis une semaine, voyant moteur allumé…"></textarea>
     </div>
   </fieldset>
 
@@ -104,60 +83,103 @@ const nomsCommunes = [communeGarage.nom, ...communes.map((c) => c.nom)];
     <div class="champs-ligne">
       <div class="champ">
         <label for="nom">Nom</label>
-        <input id="nom" name="nom" type="text" required autocomplete="name" />
+        <input id="nom" name="nom" type="text" required autocomplete="name" aria-describedby="err-nom" />
+        <p class="champ__erreur" id="err-nom" hidden></p>
       </div>
       <div class="champ">
         <label for="telephone">Téléphone</label>
-        <input id="telephone" name="telephone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="06 12 34 56 78" />
-      </div>
-    </div>
-    <div class="champs-ligne">
-      <div class="champ">
-        <label for="email">E-mail <span class="facultatif">(facultatif)</span></label>
-        <input id="email" name="email" type="email" autocomplete="email" />
-      </div>
-      <div class="champ">
-        <label for="commune">Commune <span class="facultatif">(facultatif)</span></label>
-        <input id="commune" name="commune" type="text" list="liste-communes" autocomplete="address-level2" />
-        <datalist id="liste-communes">
-          {nomsCommunes.map((n) => <option value={n} />)}
-        </datalist>
-      </div>
-    </div>
-    <div class="champ" role="group" aria-labelledby="libelle-recontact">
-      <span class="champ__libelle" id="libelle-recontact">Comment préférez-vous être recontacté ?</span>
-      <div class="choix">
-        <label><input type="radio" name="recontact" value="Appel" checked /> Appel</label>
-        <label><input type="radio" name="recontact" value="SMS" /> SMS</label>
-        <label><input type="radio" name="recontact" value="E-mail" /> E-mail</label>
-        {garage.whatsapp && <label><input type="radio" name="recontact" value="WhatsApp" /> WhatsApp</label>}
+        <input id="telephone" name="telephone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="06 12 34 56 78" aria-describedby="err-telephone" />
+        <p class="champ__erreur" id="err-telephone" hidden></p>
       </div>
     </div>
   </fieldset>
 
-  <label class="consentement">
-    <input type="checkbox" name="consentement" value="oui" required />
-    <span>
-      J’accepte que les informations saisies soient utilisées par {garage.nom} pour répondre à ma demande.
-      Voir la <a href="/confidentialite/">politique de confidentialité</a>.
-    </span>
-  </label>
+  <details class="precisions" data-precisions>
+    <summary>Ajouter des précisions <span class="facultatif">(facultatif : photo, immatriculation, date souhaitée, e-mail…)</span></summary>
+    <div class="precisions__contenu">
+      <div class="champ">
+        <label for="photo">Photo <span class="facultatif">(facultatif)</span></label>
+        <input id="photo" name="photo" type="file" accept="image/*" aria-describedby="aide-photo err-photo" />
+        <span class="champ__aide" id="aide-photo">Un voyant, un dégât, une pièce : une photo aide à préparer le devis.</span>
+        <p class="champ__erreur" id="err-photo" hidden></p>
+      </div>
+      <div class="champs-ligne">
+        <div class="champ">
+          <label for="immatriculation">Immatriculation <span class="facultatif">(facultatif)</span></label>
+          <input id="immatriculation" name="immatriculation" type="text" autocomplete="off" autocapitalize="characters" placeholder="AB-123-CD" maxlength="12" />
+        </div>
+        <div class="champ">
+          <label for="kilometrage">Kilométrage <span class="facultatif">(facultatif)</span></label>
+          <input id="kilometrage" name="kilometrage" type="text" inputmode="numeric" placeholder="Ex. : 98 000" maxlength="9" />
+        </div>
+      </div>
+      <div class="champs-ligne">
+        <div class="champ">
+          <label for="date">Date souhaitée <span class="facultatif">(facultatif)</span></label>
+          <input id="date" name="date_souhaitee" type="date" aria-describedby="aide-date err-date" />
+          <span class="champ__aide" id="aide-date">Le créneau vous sera confirmé par le garage.</span>
+          <p class="champ__erreur" id="err-date" hidden></p>
+        </div>
+        <fieldset class="champ champ--groupe">
+          <legend class="champ__libelle">Moment de la journée</legend>
+          <div class="choix">
+            <label><input type="radio" name="creneau" value="Matin" /> Matin</label>
+            <label><input type="radio" name="creneau" value="Après-midi" /> Après-midi</label>
+            <label><input type="radio" name="creneau" value="Indifférent" checked /> Indifférent</label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="champs-ligne">
+        <div class="champ">
+          <label for="email">E-mail <span class="facultatif" data-email-facultatif>(facultatif)</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" aria-describedby="err-email" />
+          <p class="champ__erreur" id="err-email" hidden></p>
+        </div>
+        <div class="champ">
+          <label for="commune">Commune <span class="facultatif">(facultatif)</span></label>
+          <input id="commune" name="commune" type="text" list="liste-communes" autocomplete="address-level2" />
+          <datalist id="liste-communes">
+            {nomsCommunes.map((n) => <option value={n} />)}
+          </datalist>
+        </div>
+      </div>
+      <fieldset class="champ champ--groupe">
+        <legend class="champ__libelle">Comment préférez-vous être recontacté ?</legend>
+        <div class="choix">
+          <label><input type="radio" name="recontact" value="Appel" checked /> Appel</label>
+          <label><input type="radio" name="recontact" value="SMS" /> SMS</label>
+          <label><input type="radio" name="recontact" value="E-mail" /> E-mail</label>
+          {whatsappE164 && <label><input type="radio" name="recontact" value="WhatsApp" /> WhatsApp</label>}
+        </div>
+      </fieldset>
+    </div>
+  </details>
 
-  <div class="message-formulaire" data-message-formulaire role="alert" hidden></div>
+  {D.payant === false && <p class="mention-devis"><Icon name="check" size={18} /> Le devis est gratuit.</p>}
+  {D.payant === true && D.prix && (
+    <p class="mention-devis">Devis payant : {D.prix}{D.deduitSiTravaux ? ', déduit du montant des travaux s’ils sont réalisés' : ''}.</p>
+  )}
+  {D.payant === null && BROUILLON && <p><Manquant quoi="devis gratuit ou payant ?" /></p>}
+
+  <p class="mention-rgpd">
+    Vos informations servent uniquement à répondre à votre demande.{' '}
+    <a href="/confidentialite/">Politique de confidentialité</a>
+  </p>
 
   <div class="groupe-boutons">
     <button type="submit" class="btn btn--accent" data-bouton-envoi>
       <Icon name="arrow-right" size={20} />
       <span data-libelle-envoi>Envoyer ma demande</span>
     </button>
-    {garage.whatsapp && (
+    {whatsappE164 && (
       <button type="button" class="btn btn--whatsapp" data-envoi-whatsapp>
         <Icon name="message-circle" size={20} /> Envoyer plutôt par WhatsApp
       </button>
     )}
   </div>
+  <p class="champ__aide" data-avertissement-photo hidden>Avec WhatsApp, joignez la photo directement dans la conversation.</p>
   {lienAppel && (
-    <p class="champ__aide">Vous préférez parler directement au garage ? <a href={lienAppel} data-suivi="Appel">Appelez le {garage.telephone}</a>.</p>
+    <p class="champ__aide">Vous préférez parler directement au garage ? <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="formulaire">Appelez le {garage.telephone}</a>.</p>
   )}
 </form>
 
