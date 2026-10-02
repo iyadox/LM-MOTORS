@@ -1,11 +1,13 @@
 // Captures d'écran du site généré (dist/) — usage : node scripts/captures.mjs [chemin...]
+// Variables : DIST (dossier à servir), PORT, SORTIE (dossier des images), TRANCHES=1 (images découpées).
 // Lance un petit serveur statique local puis photographie les pages en mobile et desktop.
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
 import { readFile, stat, mkdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 
-const DIST = new URL('../dist/', import.meta.url).pathname;
+const DIST = process.env.DIST || new URL('../dist/', import.meta.url).pathname;
+const PORT = Number(process.env.PORT || 4321);
 const SORTIE = process.env.SORTIE || new URL('../.captures/', import.meta.url).pathname;
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.xml': 'application/xml', '.txt': 'text/plain' };
 
@@ -21,7 +23,7 @@ const serveur = createServer(async (req, res) => {
     try { res.end(await readFile(join(DIST, '404.html'))); } catch { res.end('404'); }
   }
 });
-await new Promise((r) => serveur.listen(4321, r));
+await new Promise((r) => serveur.listen(PORT, r));
 await mkdir(SORTIE, { recursive: true });
 
 const pages = process.argv.slice(2).length ? process.argv.slice(2) : ['/'];
@@ -37,7 +39,7 @@ for (const f of formats) {
   page.on('console', (m) => m.type() === 'error' && erreurs.push(m.text()));
   page.on('pageerror', (e) => erreurs.push(String(e)));
   for (const p of pages) {
-    await page.goto(`http://localhost:4321${p}`, { waitUntil: 'networkidle' });
+    await page.goto(`http://localhost:${PORT}${p}`, { waitUntil: 'networkidle' });
     const nom = (p.replace(/\//g, '_').replace(/^_|_$/g, '') || 'accueil') + `-${f.nom}.png`;
     await page.screenshot({ path: join(SORTIE, nom), fullPage: true });
     // Tranches lisibles (TRANCHES=1) : une image par hauteur d'écran x 2.
