@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import Ariane from '../../components/Ariane.astro';
+import Icon from '../../components/Icon.astro';
+import Manquant from '../../components/Manquant.astro';
+import BandeCTA from '../../components/BandeCTA.astro';
+import { BROUILLON, garage } from '../../lib/site.mjs';
+import { avis } from '../../data/avis.mjs';
+
+const fmtDate = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+---
+<Base
+  titre="Avis clients"
+  description="Vous êtes passé chez LM Motors, garage à Champs-sur-Yonne ? Partagez votre expérience : votre avis aide les automobilistes de l’Auxerrois à choisir leur garage."
+>
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Avis' }]} />
+      <h1>Votre avis compte</h1>
+      <p>Vous êtes passé chez {garage.nom} ? Quelques mots suffisent : votre avis aide les automobilistes de l’Auxerrois à choisir leur garage.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur grille grille--2" style="align-items: start;">
+      <div>
+        <h2>Laisser un avis</h2>
+        {garage.liens.googleAvis ? (
+          <a href={garage.liens.googleAvis} class="btn btn--accent" target="_blank" rel="noopener" data-suivi="Avis Google">
+            <Icon name="star" size={20} /> Laisser un avis sur Google
+          </a>
+        ) : BROUILLON ? (
+          <p><Manquant quoi="lien « Laisser un avis » de la fiche Google Business Profile" /></p>
+        ) : (
+          <p>Le lien pour laisser un avis sera bientôt disponible.</p>
+        )}
+        <ul class="liste-coches" style="margin-top: 28px;">
+          <li><Icon name="check" size={20} /> <span>Racontez ce qui a été fait et comment ça s’est passé.</span></li>
+          <li><Icon name="check" size={20} /> <span>Un avis honnête, positif ou non, est toujours utile.</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2>Ils sont passés au garage</h2>
+        {avis.length > 0 ? (
+          <div class="grille">
+            {avis.map((a) => (
+              <figure class="carte" style="margin: 0;">
+                <p aria-label={`Note : ${a.note} sur 5`} style="color: var(--accent-texte); font-weight: 700;">{'★'.repeat(a.note)}{'☆'.repeat(5 - a.note)}</p>
+                <blockquote style="margin: 0;"><p style="color: var(--texte);">« {a.texte} »</p></blockquote>
+                <figcaption style="color: var(--texte-doux); font-size: 0.95rem;">
+                  {a.auteur} · {fmtDate.format(new Date(a.date))} · {a.lien ? <a href={a.lien} target="_blank" rel="noopener">{a.source}</a> : a.source}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <p style="color: var(--texte-doux);">
+            {BROUILLON
+              ? 'Aucun avis pour l’instant : seuls de vrais avis clients, recopiés depuis Google avec l’accord du gérant, seront affichés ici (fichier src/data/avis.mjs).'
+              : 'Soyez parmi les premiers à donner votre avis sur le garage.'}
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <BandeCTA />
+</Base>

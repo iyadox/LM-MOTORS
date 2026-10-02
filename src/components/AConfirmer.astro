@@ -1,0 +1,23 @@
+---
+/**
+ * Enveloppe un contenu qui doit être validé par le gérant.
+ *  - validé → affiché normalement ;
+ *  - non validé + brouillon → affiché avec un cadre « À confirmer » ;
+ *  - non validé + production → masqué.
+ */
+import { BROUILLON } from '../lib/site.mjs';
+
+interface Props {
+  valide: boolean;
+  libelle?: string;
+  as?: string;
+  class?: string;
+}
+const { valide, libelle = 'À confirmer', as: Balise = 'div', class: classe } = Astro.props;
+const afficher = valide || BROUILLON;
+---
+{afficher && (valide ? (
+  <Balise class={classe}><slot /></Balise>
+) : (
+  <Balise class:list={[classe, 'a-confirmer']} data-libelle={libelle}><slot /></Balise>
+))}

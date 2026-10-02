@@ -1,0 +1,195 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import BoutonsContact from '../components/BoutonsContact.astro';
+import Horaires from '../components/Horaires.astro';
+import Manquant from '../components/Manquant.astro';
+import AConfirmer from '../components/AConfirmer.astro';
+import CarteService from '../components/CarteService.astro';
+import Faq from '../components/Faq.astro';
+import BandeCTA from '../components/BandeCTA.astro';
+import { BROUILLON, garage, acces, servicesVisibles, ligneRue, ligneVille, lienAppel, lienItineraire } from '../lib/site.mjs';
+import { engagements } from '../data/garage.mjs';
+import { communes, communeGarage } from '../data/communes.mjs';
+import { faqGenerale } from '../data/faq.mjs';
+
+const engagementsVisibles = engagements.filter((e) => e.valide || BROUILLON);
+---
+<Base
+  titre={`${garage.nom} · Garage automobile à Champs-sur-Yonne, au sud d’Auxerre`}
+  titreComplet
+  description="LM Motors, garage automobile rue Robert Raclot à Champs-sur-Yonne (89290), au sud d’Auxerre : entretien, réparation et diagnostic. Demandez votre devis ou votre rendez-vous en ligne."
+>
+  <!-- Héros : l'essentiel pour contacter le garage, visible immédiatement -->
+  <section class="hero">
+    <div class="conteneur hero__interieur">
+      <div>
+        <p class="surtitre">Garage automobile · Champs-sur-Yonne (89290)</p>
+        <h1>
+          Votre garage
+          <span class="accent">{acces.situation}</span>
+        </h1>
+        <p class="hero__accroche">
+          Entretien, réparation et diagnostic de votre voiture, rue Robert Raclot à Champs-sur-Yonne.
+          Décrivez votre besoin en ligne, votre demande arrive directement au garage.
+        </p>
+        <div class="groupe-boutons">
+          <BoutonsContact variante="hero" />
+        </div>
+        <p class="hero__adresse">
+          <Icon name="map-pin" size={18} />
+          {ligneRue}, {ligneVille}
+        </p>
+      </div>
+
+      <aside class="carte-contact" aria-labelledby="titre-contact">
+        <h2 class="carte-contact__titre" id="titre-contact">Contact rapide</h2>
+        <div class="carte-contact__ligne">
+          <Icon name="map-pin" size={22} />
+          <div>
+            <strong>{ligneRue}{!garage.adresse.numero && BROUILLON && <> <Manquant quoi="n°" /></>}</strong>
+            {ligneVille}
+            <br /><a href={lienItineraire} target="_blank" rel="noopener" data-suivi="Itinéraire" style="color: var(--accent);">Itinéraire</a>
+          </div>
+        </div>
+        <div class="carte-contact__ligne">
+          <Icon name="clock" size={22} />
+          <div>
+            <strong>Horaires</strong>
+            {garage.horaires ? <Horaires statutSeul clair={false} /> : <Manquant quoi="horaires"><span>Sur demande</span></Manquant>}
+            {garage.horaires && <br />}
+            <a href="/acces/" style="color: var(--accent);">Voir les horaires</a>
+          </div>
+        </div>
+        <div class="carte-contact__ligne" style="border-bottom: 0;">
+          <Icon name="phone" size={22} />
+          <div>
+            <strong>Téléphone</strong>
+            {lienAppel ? <a href={lienAppel} data-suivi="Appel" style="color: var(--blanc);">{garage.telephone}</a> : <Manquant quoi="numéro"><span>Par le formulaire de demande</span></Manquant>}
+          </div>
+        </div>
+        <div class="groupe-boutons">
+          <BoutonsContact variante="carte" />
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Arguments : uniquement ceux validés par le gérant -->
+  {engagementsVisibles.length > 0 && (
+    <section class="section section--serree section--gris" aria-labelledby="titre-engagements">
+      <div class="conteneur">
+        <h2 class="visuellement-cache" id="titre-engagements">Nos engagements</h2>
+        <div class="grille grille--4">
+          {engagementsVisibles.map((e) => (
+            <AConfirmer valide={e.valide} class="carte">
+              <span class="carte__icone"><Icon name="shield-check" size={26} /></span>
+              <h3>{e.titre}</h3>
+              <p>{e.texte}</p>
+            </AConfirmer>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Prestations -->
+  {servicesVisibles.length > 0 && (
+  <section class="section" aria-labelledby="titre-prestations">
+    <div class="conteneur">
+      <div class="entete-section">
+        <p class="surtitre">Prestations</p>
+        <h2 id="titre-prestations">Entretien et réparation de votre véhicule</h2>
+        <p>Choisissez une prestation pour savoir en quoi elle consiste, quand s’en occuper et comment demander un devis.</p>
+      </div>
+      <div class="grille grille--3">
+        {servicesVisibles.map((s) => <CarteService service={s} />)}
+      </div>
+    </div>
+  </section>
+  )}
+
+  <!-- Déroulé -->
+  <section class="section section--sombre" aria-labelledby="titre-etapes">
+    <div class="conteneur">
+      <div class="entete-section">
+        <p class="surtitre">Comment ça se passe</p>
+        <h2 id="titre-etapes">Votre demande en 3 étapes</h2>
+      </div>
+      <ol class="etapes grille grille--3">
+        <li class="etape">
+          <h3>Vous décrivez le besoin</h3>
+          <p>Par le formulaire en ligne{lienAppel ? ', par téléphone' : ''}{garage.whatsapp ? ' ou par WhatsApp' : ''} : votre véhicule, le problème, une photo si besoin.</p>
+        </li>
+        <li class="etape">
+          <h3>Le garage vous répond</h3>
+          <p>{garage.nom} reçoit votre demande et revient vers vous pour le devis et le créneau.</p>
+        </li>
+        <li class="etape">
+          <h3>Vous déposez la voiture</h3>
+          <p>Rue Robert Raclot à Champs-sur-Yonne, au sud d’Auxerre.</p>
+        </li>
+      </ol>
+      <div class="groupe-boutons" style="margin-top: 32px;">
+        <a href="/devis/" class="btn btn--accent" data-suivi="Clic devis"><Icon name="calendar-check" size={20} /> Faire ma demande</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Le garage -->
+  <section class="section" aria-labelledby="titre-garage">
+    <div class="conteneur grille grille--2" style="align-items: center;">
+      <div>
+        <p class="surtitre">Le garage</p>
+        <h2 id="titre-garage">À Champs-sur-Yonne, dans l’Auxerrois</h2>
+        <p>
+          {garage.nom} est installé rue Robert Raclot, à Champs-sur-Yonne ({communeGarage.codePostal}), une commune d’environ
+          1 500 habitants de la Communauté d’agglomération de l’Auxerrois, au sud d’Auxerre.
+        </p>
+        <ul class="liste-coches">
+          <li><Icon name="map-pin" size={20} /> <span>{ligneRue}, {ligneVille}</span></li>
+          <li><Icon name="train-front" size={20} /> <span>Gare « {acces.gare} » sur la commune</span></li>
+          {acces.tempsDepuisAuxerre && <li><Icon name="navigation" size={20} /> <span>{acces.tempsDepuisAuxerre} depuis Auxerre</span></li>}
+        </ul>
+        <div class="groupe-boutons" style="margin-top: 24px;">
+          <a href="/acces/" class="btn btn--contour">Accès & horaires</a>
+        </div>
+      </div>
+      {BROUILLON && (
+        <div class="photo-a-fournir">
+          <Icon name="car" size={40} />
+          Photo réelle de l’atelier à fournir par le gérant<br />(façade, atelier, équipe)
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Zone d'intervention -->
+  <section class="section section--sombre" aria-labelledby="titre-zone">
+    <div class="conteneur">
+      <div class="entete-section">
+        <p class="surtitre">Zone d’intervention</p>
+        <h2 id="titre-zone">Auxerre et ses environs</h2>
+        <p>Vous habitez une commune voisine ? Retrouvez les informations utiles pour venir au garage depuis chez vous.</p>
+      </div>
+      <ul class="liste-communes">
+        {communes.map((c) => (
+          <li><a href={`/${c.slug}/`}><Icon name="map-pin" size={16} /> {c.nom}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section--gris" aria-labelledby="titre-faq">
+    <div class="conteneur" style="max-width: 900px;">
+      <div class="entete-section">
+        <p class="surtitre">Questions fréquentes</p>
+        <h2 id="titre-faq">Bon à savoir</h2>
+      </div>
+      <Faq questions={faqGenerale} />
+    </div>
+  </section>
+
+  <BandeCTA />
+</Base>

@@ -1,0 +1,14 @@
+---
+interface Props {
+  questions: { q: string; r: string }[];
+}
+const { questions } = Astro.props;
+---
+<div class="faq">
+  {questions.map(({ q, r }) => (
+    <details>
+      <summary>{q}</summary>
+      <div><p>{r}</p></div>
+    </details>
+  ))}
+</div>

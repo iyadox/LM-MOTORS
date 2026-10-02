@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import Ariane from '../components/Ariane.astro';
+import Icon from '../components/Icon.astro';
+import FormulaireDevis from '../components/FormulaireDevis.astro';
+import BoutonsContact from '../components/BoutonsContact.astro';
+import Horaires from '../components/Horaires.astro';
+import { garage, ligneRue, ligneVille } from '../lib/site.mjs';
+---
+<Base
+  titre="Demande de devis ou de rendez-vous"
+  description="Demandez un devis ou un rendez-vous chez LM Motors, garage à Champs-sur-Yonne (89290), au sud d’Auxerre : votre véhicule, votre besoin, une photo si besoin. La demande arrive directement au garage."
+>
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Devis & rendez-vous' }]} />
+      <h1>Devis ou rendez-vous</h1>
+      <p>Décrivez votre véhicule et votre besoin : votre demande est transmise directement au garage, qui revient vers vous pour le devis et le créneau.</p>
+    </div>
+  </section>
+
+  <section class="section section--gris">
+    <div class="conteneur deux-colonnes">
+      <FormulaireDevis />
+
+      <aside class="aside-carte" style="background: var(--blanc);" aria-labelledby="titre-autre-contact">
+        <h2 id="titre-autre-contact">Autres moyens</h2>
+        <div class="groupe-boutons">
+          <BoutonsContact variante="carte" devis={false} />
+        </div>
+        <ul class="liste-coches" style="margin-top: 20px;">
+          <li><Icon name="map-pin" size={20} /> <span>{ligneRue}<br />{ligneVille}</span></li>
+        </ul>
+        <h3 style="margin-top: 24px;">Horaires</h3>
+        <Horaires />
+      </aside>
+    </div>
+  </section>
+</Base>

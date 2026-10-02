@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import BoutonsContact from '../components/BoutonsContact.astro';
+---
+<Base titre="Page introuvable" description="Cette page n’existe pas ou a été déplacée." noindex>
+  <section class="entete-page">
+    <div class="conteneur">
+      <p class="surtitre">Erreur 404</p>
+      <h1>Page introuvable</h1>
+      <p>Cette page n’existe pas ou a été déplacée.</p>
+      <div class="groupe-boutons" style="margin-top: 24px;">
+        <a href="/" class="btn btn--accent">Retour à l’accueil</a>
+        <a href="/services/" class="btn btn--contour">Voir les prestations</a>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="conteneur">
+      <h2>Besoin du garage ?</h2>
+      <div class="groupe-boutons"><BoutonsContact variante="hero" /></div>
+    </div>
+  </section>
+</Base>

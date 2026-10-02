@@ -1,0 +1,15 @@
+---
+/**
+ * Emplacement d'une information encore inconnue.
+ *  - brouillon : affiche « À compléter : … » de façon très visible ;
+ *  - production : affiche le contenu de repli (slot) s'il y en a un, sinon rien.
+ */
+import { BROUILLON } from '../lib/site.mjs';
+
+interface Props {
+  quoi: string;
+}
+const { quoi } = Astro.props;
+const repli = Astro.slots.has('default') ? await Astro.slots.render('default') : '';
+---
+{BROUILLON ? <span class="manquant">À compléter : {quoi}</span> : <Fragment set:html={repli} />}

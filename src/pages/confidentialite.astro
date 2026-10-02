@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import Ariane from '../components/Ariane.astro';
+import Manquant from '../components/Manquant.astro';
+import AConfirmer from '../components/AConfirmer.astro';
+import { garage, ligneRue, ligneVille, lienEmail } from '../lib/site.mjs';
+
+const L = garage.legal;
+const F = garage.formulaire;
+---
+<Base titre="Politique de confidentialité" description="Comment LM Motors utilise et protège les informations transmises par le formulaire de demande de devis.">
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Confidentialité' }]} />
+      <h1>Confidentialité</h1>
+      <p>Ce que deviennent les informations que vous transmettez par le formulaire de demande de devis.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur prose">
+      <h2>Responsable du traitement</h2>
+      <p>
+        {L.raisonSociale ?? <Manquant quoi="raison sociale" />} ({garage.nom}), {ligneRue}, {ligneVille}.
+      </p>
+
+      <h2>Données collectées</h2>
+      <p>Uniquement ce que vous saisissez dans le formulaire de demande de devis ou de rendez-vous :</p>
+      <ul>
+        <li>nom, téléphone, et si vous les indiquez : e-mail, commune ;</li>
+        <li>informations sur le véhicule : marque, modèle, et si vous les indiquez : immatriculation, kilométrage ;</li>
+        <li>description de votre besoin, date souhaitée, photo éventuelle.</li>
+      </ul>
+
+      <h2>Finalité et base légale</h2>
+      <p>
+        Ces informations servent uniquement à répondre à votre demande (devis, rendez-vous). Le traitement repose sur
+        les mesures précontractuelles prises à votre demande (article 6.1.b du RGPD). Elles ne sont ni vendues ni utilisées
+        pour de la publicité.
+      </p>
+
+      <h2>Destinataires</h2>
+      <p>
+        Le garage {garage.nom}, et l’hébergeur du site qui reçoit les demandes pour le compte du garage
+        ({garage.hebergeur.nom ?? <Manquant quoi="hébergeur" />}).
+      </p>
+
+      <h2>Durée de conservation</h2>
+      <AConfirmer valide={F.dureeConservationValidee}>
+        <p>Les demandes sont conservées au plus {F.dureeConservation}, puis supprimées.</p>
+      </AConfirmer>
+
+      <h2>Vos droits</h2>
+      <p>
+        Vous pouvez demander l’accès à vos données, leur rectification, leur effacement, la limitation du traitement,
+        vous y opposer ou demander leur portabilité, en écrivant à
+        {garage.email ? <a href={lienEmail(garage.email, 'Données personnelles')}>{garage.email}</a> : <Manquant quoi="e-mail de contact" />}
+        ou à l’adresse du garage. Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une
+        réclamation à la CNIL (<a href="https://www.cnil.fr" rel="noopener">www.cnil.fr</a>).
+      </p>
+
+      <h2>Cookies et statistiques</h2>
+      <p>
+        Ce site ne dépose pas de cookie publicitaire ni de cookie de suivi. Les polices de caractères sont hébergées sur le site
+        lui-même.
+        {garage.analytics.plausibleDomain && ' La fréquentation est mesurée avec Plausible Analytics, un outil sans cookie qui ne collecte aucune donnée personnelle.'}
+        Les liens d’itinéraire ouvrent Google Maps dans une nouvelle page, uniquement si vous cliquez dessus.
+      </p>
+    </div>
+  </section>
+</Base>

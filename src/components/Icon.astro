@@ -1,0 +1,40 @@
+---
+// Icônes Lucide (licence ISC), intégrées en SVG au moment de la génération du site.
+import noeuds from 'lucide-static/icon-nodes.json';
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  label?: string;
+}
+const { name, size = 24, class: classe, label } = Astro.props;
+const noeud = (noeuds as Record<string, [string, Record<string, string>][]>)[name];
+if (!noeud) throw new Error(`Icône inconnue : ${name}`);
+const contenu = noeud
+  .map(([balise, attrs]) => {
+    const a = Object.entries(attrs)
+      .filter(([k]) => k !== 'key')
+      .map(([k, v]) => `${k}="${v}"`)
+      .join(' ');
+    return `<${balise} ${a}/>`;
+  })
+  .join('');
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class:list={['icon', classe]}
+  aria-hidden={label ? undefined : 'true'}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  focusable="false"
+  set:html={contenu}
+/>

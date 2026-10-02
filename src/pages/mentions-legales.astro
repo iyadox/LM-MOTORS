@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import Ariane from '../components/Ariane.astro';
+import Manquant from '../components/Manquant.astro';
+import { garage, ligneRue, ligneVille, lienEmail } from '../lib/site.mjs';
+
+const L = garage.legal;
+const H = garage.hebergeur;
+---
+<Base titre="Mentions légales" description="Mentions légales du site de LM Motors, garage automobile à Champs-sur-Yonne (89290).">
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Mentions légales' }]} />
+      <h1>Mentions légales</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur prose">
+      <h2>Éditeur du site</h2>
+      <p>
+        {L.raisonSociale ?? <Manquant quoi="raison sociale" />}
+        {L.formeJuridique && <>, {L.formeJuridique}</>}
+        {L.capital && <> au capital de {L.capital}</>}<br />
+        Nom commercial : {garage.nom}<br />
+        Siège social : {L.siege ?? <Manquant quoi="adresse du siège social" />}<br />
+        Établissement : {ligneRue}, {ligneVille}<br />
+        SIRET : {L.siret ?? <Manquant quoi="SIRET" />}<br />
+        RCS : {L.rcs ?? <Manquant quoi="immatriculation RCS" />}<br />
+        {L.tvaIntracom && <>TVA intracommunautaire : {L.tvaIntracom}<br /></>}
+        {garage.telephone && <>Téléphone : {garage.telephone}<br /></>}
+        {garage.email && <>E-mail : <a href={lienEmail(garage.email)}>{garage.email}</a><br /></>}
+      </p>
+      <p>Directeur de la publication : {L.directeurPublication ?? <Manquant quoi="directeur de la publication" />}</p>
+
+      <h2>Hébergement</h2>
+      <p>
+        {H.nom ?? <Manquant quoi="hébergeur" />}
+        {H.adresse && <><br />{H.adresse}</>}
+        {H.contact && <><br />{H.contact}</>}
+      </p>
+
+      <h2>Médiation de la consommation</h2>
+      <p>
+        Conformément aux articles L.611-1 et suivants du Code de la consommation, le client consommateur peut recourir
+        gratuitement à un médiateur de la consommation en vue de la résolution amiable d’un litige :
+        {L.mediateur ?? <Manquant quoi="médiateur de la consommation (nom, site, adresse)" />}.
+      </p>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        Les textes et la présentation de ce site sont la propriété de l’éditeur. Toute reproduction sans autorisation est interdite.
+      </p>
+
+      <h2>Crédits</h2>
+      <ul>
+        <li>Icônes : <a href="https://lucide.dev" rel="noopener">Lucide</a> (licence ISC).</li>
+        <li>Polices : Barlow Condensed et Inter (SIL Open Font License), hébergées sur ce site.</li>
+        <li>Données sur les communes : INSEE et Etalab (découpage administratif), La Poste (codes postaux).</li>
+      </ul>
+    </div>
+  </section>
+</Base>

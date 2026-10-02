@@ -1,0 +1,25 @@
+---
+import BoutonsContact from './BoutonsContact.astro';
+
+interface Props {
+  titre?: string;
+  texte?: string;
+}
+const {
+  titre = 'Un souci avec votre voiture ?',
+  texte = 'Décrivez votre besoin en ligne : votre demande arrive directement au garage.',
+} = Astro.props;
+---
+<section class="section section--serree">
+  <div class="conteneur">
+    <div class="bande-cta">
+      <div>
+        <h2>{titre}</h2>
+        <p>{texte}</p>
+      </div>
+      <div class="groupe-boutons">
+        <BoutonsContact variante="cta" whatsapp={false} />
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,47 @@
+---
+/**
+ * Tableau des horaires + statut « Ouvert / Fermé » calculé en direct (heure de Paris).
+ * Si les horaires sont inconnus : « À compléter » en brouillon, invitation à appeler en production.
+ */
+import Manquant from './Manquant.astro';
+import { garage, JOURS, formaterPlages, lienAppel } from '../lib/site.mjs';
+
+interface Props {
+  statutSeul?: boolean;
+  clair?: boolean;
+}
+const { statutSeul = false, clair = true } = Astro.props;
+const h = garage.horaires;
+---
+{h ? (
+  statutSeul ? (
+    <span class:list={['statut', clair && 'statut--clair']} data-statut-horaires={JSON.stringify(h)} hidden></span>
+  ) : (
+    <div class="bloc-horaires">
+      <p><span class:list={['statut', clair && 'statut--clair']} data-statut-horaires={JSON.stringify(h)} hidden></span></p>
+      <table class="horaires" data-tableau-horaires>
+        <caption class="visuellement-cache">Horaires d’ouverture</caption>
+        <tbody>
+          {h.map((j, i) => (
+            <tr data-jour={i}>
+              <th scope="row">{JOURS[i]}</th>
+              <td>{formaterPlages(j.plages)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {garage.fermetures && <p class="champ__aide">{garage.fermetures}</p>}
+    </div>
+  )
+) : statutSeul ? null : (
+  <p>
+    <Manquant quoi="horaires d’ouverture">
+      {lienAppel ? <span>Horaires communiqués par téléphone : <a href={lienAppel} data-suivi="Appel">{garage.telephone}</a>.</span> : <span>Horaires communiqués sur demande.</span>}
+    </Manquant>
+  </p>
+)}
+
+<script>
+  import { initialiserHoraires } from '../scripts/horaires.js';
+  initialiserHoraires();
+</script>

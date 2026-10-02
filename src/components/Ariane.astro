@@ -1,0 +1,28 @@
+---
+interface Props {
+  elements: { nom: string; href?: string }[];
+}
+const { elements } = Astro.props;
+const tous = [{ nom: 'Accueil', href: '/' }, ...elements];
+const site = Astro.site?.href ?? '/';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: tous.map((e, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: e.nom,
+    ...(e.href ? { item: new URL(e.href, site).href } : {}),
+  })),
+};
+---
+<nav class="ariane" aria-label="Fil d’Ariane">
+  <ol>
+    {tous.map((e, i) => (
+      <li>
+        {e.href && i < tous.length - 1 ? <a href={e.href}>{e.nom}</a> : <span aria-current="page">{e.nom}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

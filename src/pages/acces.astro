@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro';
+import Ariane from '../components/Ariane.astro';
+import Icon from '../components/Icon.astro';
+import Horaires from '../components/Horaires.astro';
+import Manquant from '../components/Manquant.astro';
+import BoutonsContact from '../components/BoutonsContact.astro';
+import BandeCTA from '../components/BandeCTA.astro';
+import { BROUILLON, garage, acces, ligneRue, ligneVille, lienItineraire, lienAppel, lienEmail } from '../lib/site.mjs';
+import { communeGarage } from '../data/communes.mjs';
+---
+<Base
+  titre="Accès, adresse et horaires"
+  description="Adresse, itinéraire et horaires de LM Motors, garage rue Robert Raclot à Champs-sur-Yonne (89290), au sud d’Auxerre."
+>
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Accès & horaires' }]} />
+      <h1>Accès & horaires</h1>
+      <p>{garage.nom} se trouve rue Robert Raclot, à Champs-sur-Yonne ({communeGarage.codePostal}), {acces.situation}.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur grille grille--2">
+      <div>
+        <h2>Adresse</h2>
+        <address style="font-style: normal; font-size: 1.15rem;">
+          <strong>{garage.nom}</strong><br />
+          {ligneRue}{!garage.adresse.numero && BROUILLON && <> <Manquant quoi="numéro dans la rue" /></>}<br />
+          {garage.adresse.complement && <>{garage.adresse.complement}<br /></>}
+          {ligneVille}
+        </address>
+        <div class="groupe-boutons" style="margin-top: 20px;">
+          <a href={lienItineraire} class="btn btn--sombre" target="_blank" rel="noopener" data-suivi="Itinéraire">
+            <Icon name="navigation" size={20} /> Itinéraire
+          </a>
+          <BoutonsContact variante="hero" devis={false} />
+        </div>
+
+        <h2 style="margin-top: 48px;">Repères</h2>
+        <ul class="liste-coches">
+          <li><Icon name="map-pin" size={20} /> <span>Champs-sur-Yonne est une commune de la Communauté d’agglomération de l’Auxerrois, {acces.situation}.</span></li>
+          <li><Icon name="train-front" size={20} /> <span>La gare « {acces.gare} » se trouve sur la commune.</span></li>
+          {acces.tempsDepuisAuxerre ? (
+            <li><Icon name="navigation" size={20} /> <span>{acces.tempsDepuisAuxerre} depuis Auxerre.</span></li>
+          ) : BROUILLON && (
+            <li><Icon name="navigation" size={20} /> <Manquant quoi="temps de trajet mesuré depuis Auxerre" /></li>
+          )}
+          {BROUILLON && (
+            <li><Icon name="car" size={20} /> <Manquant quoi="repère sur place et stationnement (ex. centre commercial Le Rami ?)" /></li>
+          )}
+        </ul>
+      </div>
+
+      <div>
+        <h2>Horaires</h2>
+        <Horaires />
+        {(lienAppel || garage.email) && (
+          <>
+            <h2 style="margin-top: 48px;">Contact</h2>
+            <ul class="liste-coches">
+              {lienAppel && <li><Icon name="phone" size={20} /> <a href={lienAppel} data-suivi="Appel">{garage.telephone}</a></li>}
+              {garage.email && <li><Icon name="mail" size={20} /> <a href={lienEmail(garage.email)}>{garage.email}</a></li>}
+            </ul>
+          </>
+        )}
+        {garage.paiement.moyens && (
+          <>
+            <h2 style="margin-top: 48px;">Paiement</h2>
+            <p>{garage.paiement.moyens.join(' · ')}</p>
+            {garage.paiement.facilites && <p>{garage.paiement.facilites}</p>}
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <BandeCTA />
+</Base>

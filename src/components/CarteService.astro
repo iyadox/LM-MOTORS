@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+import AConfirmer from './AConfirmer.astro';
+
+interface Props {
+  service: { slug: string; titre: string; icone: string; resume: string; prix: string | null; valide: boolean };
+  niveauTitre?: 'h2' | 'h3';
+}
+const { service: s, niveauTitre: H = 'h3' } = Astro.props;
+---
+<AConfirmer valide={s.valide} class="carte carte--lien" as="article">
+  <span class="carte__icone"><Icon name={s.icone} size={26} /></span>
+  <H><a href={`/services/${s.slug}/`}>{s.titre}</a></H>
+  <p>{s.resume}</p>
+  {s.prix && <p class="carte__prix">{s.prix}</p>}
+  <span class="carte__plus" aria-hidden="true">En savoir plus <Icon name="arrow-right" size={18} /></span>
+</AConfirmer>

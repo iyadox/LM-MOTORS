@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import BoutonsContact from '../components/BoutonsContact.astro';
+import { garage } from '../lib/site.mjs';
+---
+<Base titre="Demande envoyée" description="Votre demande a bien été transmise au garage LM Motors." noindex>
+  <section class="entete-page">
+    <div class="conteneur">
+      <p class="surtitre"><Icon name="check" size={18} /> Demande envoyée</p>
+      <h1>Merci, c’est reçu !</h1>
+      <p>Votre demande a été transmise à {garage.nom}. Le garage revient vers vous selon le moyen de contact que vous avez choisi.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="conteneur" style="max-width: 760px;">
+      <h2>En attendant</h2>
+      <ul class="liste-coches">
+        <li><Icon name="check" size={20} /> <span>Gardez votre carnet d’entretien et vos dernières factures à portée de main.</span></li>
+        <li><Icon name="check" size={20} /> <span>Un voyant s’est allumé ? Une photo du tableau de bord aidera le garage.</span></li>
+        <li><Icon name="check" size={20} /> <span>Un voyant rouge signale un danger : évitez de rouler avant le contrôle.</span></li>
+      </ul>
+      <div class="groupe-boutons" style="margin-top: 32px;">
+        <BoutonsContact variante="hero" devis={false} />
+        <a href="/" class="btn btn--contour">Retour à l’accueil</a>
+      </div>
+    </div>
+  </section>
+</Base>

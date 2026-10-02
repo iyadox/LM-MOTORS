@@ -1,0 +1,84 @@
+---
+import Base from '../../layouts/Base.astro';
+import Ariane from '../../components/Ariane.astro';
+import Icon from '../../components/Icon.astro';
+import AConfirmer from '../../components/AConfirmer.astro';
+import BoutonsContact from '../../components/BoutonsContact.astro';
+import BandeCTA from '../../components/BandeCTA.astro';
+import { servicesVisibles, BROUILLON, garage } from '../../lib/site.mjs';
+
+export function getStaticPaths() {
+  return servicesVisibles.map((service) => ({ params: { slug: service.slug }, props: { service } }));
+}
+
+const { service: s } = Astro.props;
+const autres = servicesVisibles.filter((x) => x.slug !== s.slug).slice(0, 4);
+---
+<Base
+  titre={`${s.titre} à Champs-sur-Yonne, près d’Auxerre`}
+  description={`${s.titre} chez ${garage.nom}, garage rue Robert Raclot à Champs-sur-Yonne (89290), au sud d’Auxerre. ${s.resume} Demandez votre devis en ligne.`}
+>
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Prestations', href: '/services/' }, { nom: s.titre }]} />
+      <h1>{s.titre}</h1>
+      <p>{s.intro}</p>
+      {!s.valide && BROUILLON && <p><span class="manquant">Prestation à confirmer par le gérant</span></p>}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur deux-colonnes">
+      <div class="prose">
+        <h2>En quoi consiste l’intervention</h2>
+        <ul class="liste-coches">
+          {s.contenu.map((c) => <li><Icon name="check" size={20} /> <span>{c}</span></li>)}
+        </ul>
+
+        <h2>Quand faut-il s’en occuper ?</h2>
+        <ul class="liste-coches">
+          {s.signes.map((c) => <li><Icon name="arrow-right" size={20} /> <span>{c}</span></li>)}
+        </ul>
+
+        <div class="encadre" style="margin-top: 32px;">
+          <strong>Bon à savoir</strong>
+          {s.bonASavoir}
+        </div>
+
+        {s.prix && (
+          <AConfirmer valide={s.valide}>
+            <h2>Tarif</h2>
+            <p class="carte__prix">{s.prix}</p>
+          </AConfirmer>
+        )}
+      </div>
+
+      <aside class="aside-carte" aria-labelledby="titre-aside">
+        <h2 id="titre-aside">Demander un devis</h2>
+        <p>Indiquez votre véhicule et votre besoin : la demande arrive directement au garage.</p>
+        <div class="groupe-boutons">
+          <a href={`/devis/?prestation=${s.slug}`} class="btn btn--accent btn--large" data-suivi="Clic devis">
+            <Icon name="calendar-check" size={20} /> Devis {s.titre.toLowerCase()}
+          </a>
+          <BoutonsContact variante="carte" devis={false} />
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {autres.length > 0 && (
+    <section class="section section--gris section--serree">
+      <div class="conteneur">
+        <h2>Autres prestations</h2>
+        <ul class="liste-communes liste-communes--clair" style="margin-top: 16px;">
+          {autres.map((a) => (
+            <li><a href={`/services/${a.slug}/`}>{a.titre}</a></li>
+          ))}
+          <li><a href="/services/">Toutes les prestations</a></li>
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <BandeCTA />
+</Base>

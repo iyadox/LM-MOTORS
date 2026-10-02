@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import Ariane from '../../components/Ariane.astro';
+import CarteService from '../../components/CarteService.astro';
+import BandeCTA from '../../components/BandeCTA.astro';
+import { servicesVisibles } from '../../lib/site.mjs';
+---
+<Base
+  titre="Prestations : entretien, freinage, pneus, diagnostic"
+  description="Prestations de LM Motors à Champs-sur-Yonne, au sud d’Auxerre : entretien et vidange, freinage, pneus, diagnostic électronique, distribution, embrayage, climatisation et plus."
+>
+  <section class="entete-page">
+    <div class="conteneur">
+      <Ariane elements={[{ nom: 'Prestations' }]} />
+      <h1>Nos prestations</h1>
+      <p>Entretien et réparation de véhicules légers à Champs-sur-Yonne. Pour chaque prestation : en quoi elle consiste, les signes qui doivent vous alerter, et la demande de devis.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="conteneur">
+      <div class="grille grille--3">
+        {servicesVisibles.map((s) => <CarteService service={s} niveauTitre="h2" />)}
+      </div>
+      <p style="margin-top: 32px; color: var(--texte-doux);">
+        Votre besoin n’est pas dans la liste ? Décrivez-le dans la <a href="/devis/">demande de devis</a>.
+      </p>
+    </div>
+  </section>
+
+  <BandeCTA />
+</Base>

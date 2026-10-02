@@ -1,0 +1,40 @@
+---
+/**
+ * Carte imprimable à poser au comptoir : un QR code qui mène directement
+ * à la page « Laisser un avis » Google du garage.
+ */
+import QRCode from 'qrcode';
+import Base from '../../layouts/Base.astro';
+import Manquant from '../../components/Manquant.astro';
+import { garage, ligneVille } from '../../lib/site.mjs';
+
+const lien = garage.liens.googleAvis;
+const qr = lien
+  ? await QRCode.toString(lien, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#101318', light: '#ffffff' } })
+  : null;
+---
+<Base titre="Carte avis à imprimer" description="Carte avec QR code pour laisser un avis sur le garage." noindex>
+  <section class="section">
+    <div class="conteneur" style="max-width: 720px;">
+      <p class="ne-pas-imprimer" style="color: var(--texte-doux);">
+        Imprimez cette page (Ctrl + P) et posez la carte au comptoir ou glissez-la avec la facture.
+        <button class="btn btn--sombre" type="button" data-imprimer style="margin-top: 12px;">Imprimer</button>
+      </p>
+      <div style="border: 3px solid var(--encre); border-radius: 20px; padding: 40px; text-align: center; margin-top: 24px;">
+        <p class="surtitre" style="justify-content: center;">{garage.nom} · {ligneVille}</p>
+        <h1 style="font-size: clamp(2rem, 6vw, 3rem);">Votre avis nous aide</h1>
+        <p style="font-size: 1.2rem;">Scannez le code avec l’appareil photo de votre téléphone<br />pour laisser un avis sur Google.</p>
+        {qr ? (
+          <div style="width: 260px; margin: 24px auto 0;" set:html={qr} />
+        ) : (
+          <p style="margin-top: 24px;"><Manquant quoi="lien Google « Laisser un avis » (le QR code sera généré automatiquement)" /></p>
+        )}
+        <p style="margin-top: 24px; font-weight: 700;">Merci pour votre confiance !</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelector('[data-imprimer]')?.addEventListener('click', () => window.print());
+</script>
