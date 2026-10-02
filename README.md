@@ -78,7 +78,7 @@ Pour utiliser un autre service de formulaires (Formspree…), renseigner `formul
 
 ## Mesurer ce que le site rapporte
 
-- Chaque demande contient la **page d'arrivée** et la **provenance** du client : site d'origine et paramètres `utm_*`. Le gérant sait ainsi d'où viennent ses clients, même sans outil de statistiques.
+- Chaque demande indique la **page du site d'où elle a été envoyée** : une prestation, une page commune, l'accueil… Si le client arrive directement sur le formulaire, elle indique aussi le site d'origine et les paramètres `utm_*`. Rien n'est stocké sur l'appareil du visiteur, donc aucun bandeau de consentement n'est nécessaire.
 - Sur la fiche Google, utiliser comme lien du site : `https://<domaine>/?utm_source=google&utm_medium=fiche`. Faire de même sur Vroomly.
 - Facultatif, statistiques sans cookie avec Plausible : renseigner `analytics.plausibleDomain`, puis créer les objectifs suivants :
 

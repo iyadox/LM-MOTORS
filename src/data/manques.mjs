@@ -94,18 +94,20 @@ export function listerManques() {
   if (!L.siege) ajouter('bloquant', 'Mentions légales', L.statut === 'ei' ? 'Adresse de l’entreprise' : 'Adresse du siège social', 'garage.legal.siege');
   if (!L.siret) ajouter('bloquant', 'Mentions légales', 'Numéro SIRET de l’établissement', 'garage.legal.siret');
   if (!L.immatriculation) ajouter('bloquant', 'Mentions légales', 'Immatriculation (RCS ou RNE, telle qu’indiquée sur le Kbis / l’extrait)', 'garage.legal.immatriculation');
-  if (L.tvaIntracom === null) ajouter('important', 'Mentions légales', 'Numéro de TVA intracommunautaire (ou false si non assujetti)', 'garage.legal.tvaIntracom');
+  if (L.tvaIntracom === null) ajouter('bloquant', 'Mentions légales', 'Numéro de TVA intracommunautaire (ou false si non assujetti)', 'garage.legal.tvaIntracom');
   if (!L.directeurPublication) ajouter('bloquant', 'Mentions légales', 'Directeur de la publication (représentant légal)', 'garage.legal.directeurPublication');
   const M = L.mediateur;
   if (!M || !M.nom || !M.adresse || !M.site) ajouter('bloquant', 'Mentions légales', 'Médiateur de la consommation : nom, adresse et site internet', 'garage.legal.mediateur');
   if (!H.nom || !H.adresse || !H.telephone) ajouter('bloquant', 'Mentions légales', 'Hébergeur du site : nom, adresse et téléphone', 'garage.hebergeur');
-  if (H.nom && !H.transfertHorsUE) ajouter('important', 'Confidentialité', 'Pays de l’hébergeur et cadre d’un éventuel transfert hors UE (« non » si dans l’UE)', 'garage.hebergeur.transfertHorsUE');
+  if (!F.endpoint && !H.transfertHorsUE) ajouter('bloquant', 'Confidentialité', 'Lieu de stockage des demandes et cadre du transfert hors UE (Netlify Forms : États-Unis)', 'garage.hebergeur.transfertHorsUE');
+  else if (H.nom && !H.transfertHorsUE) ajouter('important', 'Confidentialité', 'Pays de l’hébergeur et cadre d’un éventuel transfert hors UE (« non » si dans l’UE)', 'garage.hebergeur.transfertHorsUE');
   if (!F.dureeConservation) ajouter('bloquant', 'Confidentialité', 'Durée de conservation des demandes, décidée et appliquée par le gérant', 'garage.formulaire.dureeConservation');
 
   // Devis : gratuit ou payant ? (R.111-3 C. conso)
   const D = garage.devis;
   if (D.payant === null) ajouter('important', 'Devis', 'Le devis est-il gratuit ou payant ? (affiché près du formulaire)', 'garage.devis.payant');
   else if (D.payant && (!D.prix || !/TTC/i.test(D.prix))) ajouter('bloquant', 'Devis', 'Prix du devis payant (TTC)', 'garage.devis.prix');
+  if (D.diagnostic && !/TTC/i.test(D.diagnostic)) ajouter('bloquant', 'Devis', 'Prix du diagnostic préalable (TTC)', 'garage.devis.diagnostic');
 
   // Suivi
   if (!garage.analytics.plausibleDomain) ajouter('utile', 'Suivi', 'Mesure des appels et des demandes (Plausible, sans cookie)', 'garage.analytics.plausibleDomain');

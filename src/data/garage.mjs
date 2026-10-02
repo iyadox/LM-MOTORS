@@ -108,8 +108,9 @@ export const garage = {
     nom: null,
     adresse: null,
     telephone: null,
-    // Pays de l'hébergeur et cadre du transfert si hors UE (ex. 'États-Unis — Data Privacy Framework'),
-    // à vérifier auprès de l'hébergeur avant de le renseigner.
+    // Pays de l'hébergeur et cadre du transfert si hors UE, recopiés depuis sa politique de données
+    // (ex. pour Netlify, stockage aux États-Unis : 'stockage aux États-Unis, dans le cadre du Data Privacy Framework UE–États-Unis').
+    // 'non' si l'hébergement est dans l'Union européenne.
     transfertHorsUE: null,
   },
 
@@ -133,9 +134,10 @@ export const garage = {
     dureeConservation: null,
   },
 
-  // Le devis est-il gratuit ? (R.111-3 C. conso : un devis ne peut être facturé que si le client
-  // en est informé à l'avance.) payant: true/false ; prix (TTC) et deduitSiTravaux si payant.
-  devis: { payant: null, prix: null, deduitSiTravaux: null },
+  // Le devis est-il gratuit ? (un devis ne peut être facturé que si le client en est informé à l'avance.)
+  // payant: true/false ; prix (TTC) et deduitSiTravaux si payant.
+  // diagnostic : si un diagnostic ou un démontage préalable est facturé, son prix TTC (ex. '45 € TTC').
+  devis: { payant: null, prix: null, deduitSiTravaux: null, diagnostic: null },
 
   visuels: {
     // Chemin du logo officiel dans /public (ex. '/logo.svg'). `null` = logo typographique provisoire.

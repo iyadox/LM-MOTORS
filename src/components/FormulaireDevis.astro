@@ -15,6 +15,8 @@ const endpoint = garage.formulaire.endpoint;
 const netlify = !endpoint;
 const nomsCommunes = [communeGarage.nom, ...communes.map((c) => c.nom)];
 const D = garage.devis;
+const L = garage.legal;
+const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? ' EI' : ''} (${garage.nom})` : garage.nom;
 
 ---
 <form
@@ -39,7 +41,7 @@ const D = garage.devis;
   {netlify && <input type="hidden" name="form-name" value="devis" />}
   <input type="hidden" name="subject" value={`Nouvelle demande de devis – site ${garage.nom}`} />
   <input type="hidden" name="provenance" value="" />
-  <input type="hidden" name="page_entree" value="" />
+  <input type="hidden" name="page_precedente" value="" />
   <input type="hidden" name="remarque" value="" />
   <p class="pot-de-miel" aria-hidden="true">
     <label>Ne pas remplir ce champ <input name="site-web" tabindex="-1" autocomplete="off" /></label>
@@ -156,13 +158,15 @@ const D = garage.devis;
   </details>
 
   {D.payant === false && <p class="mention-devis"><Icon name="check" size={18} /> Le devis est gratuit.</p>}
+  {D.diagnostic && <p class="champ__aide">Diagnostic préalable, si nécessaire pour établir le devis : {D.diagnostic}.</p>}
   {D.payant === true && D.prix && (
     <p class="mention-devis">Devis payant : {D.prix}{D.deduitSiTravaux ? ', déduit du montant des travaux s’ils sont réalisés' : ''}.</p>
   )}
   {D.payant === null && BROUILLON && <p><Manquant quoi="devis gratuit ou payant ?" /></p>}
 
   <p class="mention-rgpd">
-    Vos informations servent uniquement à répondre à votre demande.{' '}
+    Vos informations sont utilisées par {responsable} uniquement pour répondre à votre demande
+    (avec la page du site d’où vous l’envoyez, pour savoir comment les clients trouvent le garage).{' '}
     <a href="/confidentialite/">Politique de confidentialité</a>
   </p>
 

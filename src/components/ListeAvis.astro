@@ -11,7 +11,7 @@ interface Props {
   max?: number;
 }
 const { max = avis.length } = Astro.props;
-const fmtDate = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+const fmtDate = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 ---
 {avis.length > 0 && (
   <div class="grille grille--3">
@@ -20,7 +20,9 @@ const fmtDate = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric
         <p class="avis__note"><span aria-hidden="true">{'★'.repeat(a.note)}{'☆'.repeat(5 - a.note)}</span><span class="visuellement-cache">Note : {a.note} sur 5</span></p>
         <blockquote><p>« {a.texte} »</p></blockquote>
         <figcaption>
-          {a.auteur} · {fmtDate.format(new Date(a.date))} · {a.lien ? <a href={a.lien} target="_blank" rel="noopener">{a.source}</a> : a.source}
+          {a.auteur} · publié le {fmtDate.format(new Date(a.date))}
+          {a.dateExperience ? ` · expérience de ${a.dateExperience}` : ' · date de l’expérience non indiquée'} ·{' '}
+          {a.lien ? <a href={a.lien} target="_blank" rel="noopener">{a.source}</a> : a.source}
         </figcaption>
       </figure>
     ))}
@@ -29,6 +31,6 @@ const fmtDate = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric
 {avis.length > 0 && (
   <p class="note-bas">
     Avis recopiés sans modification depuis la fiche Google du garage, du plus récent au plus ancien, quelle que soit la note.
-    Ni Google ni le garage ne vérifient que leurs auteurs sont clients.
+    Ces avis ne sont pas vérifiés par le garage ; ils sont soumis à la modération de Google.
   </p>
 )}

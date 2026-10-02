@@ -1,7 +1,7 @@
 // Formulaire de devis : validation champ par champ, photo compressée, envoi sans rechargement,
 // objet d'e-mail explicite pour le garage, provenance du client, alternative WhatsApp.
 // Sans JavaScript, le formulaire reste fonctionnel (envoi classique).
-import { suivre, lireVisite } from './suivi.js';
+import { suivre, origineDemande } from './suivi.js';
 
 const MESSAGES = {
   prestation: 'Choisissez une prestation (ou « Autre / je ne sais pas »).',
@@ -211,11 +211,9 @@ export function initialiserFormulaire() {
 
     const donnees = new FormData(form);
     donnees.set('subject', resumerPourObjet(form));
-    const visite = lireVisite();
-    if (visite) {
-      donnees.set('provenance', [visite.provenance, visite.campagne].filter(Boolean).join(' – '));
-      donnees.set('page_entree', visite.entree);
-    }
+    const origine = origineDemande();
+    donnees.set('page_precedente', origine.pagePrecedente);
+    donnees.set('provenance', origine.provenance);
     const photo = await preparerPhoto(form.elements.namedItem('photo')?.files?.[0]);
     if (photo.fichier) donnees.set('photo', photo.fichier);
     else {

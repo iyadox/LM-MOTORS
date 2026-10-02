@@ -50,8 +50,8 @@ if (!pageAvisVisible) return Astro.redirect('/');
               <ListeAvis />
             ) : (
               <p class="note-bas">
-                Aucun avis pour l’instant : seuls de vrais avis clients, recopiés mot pour mot depuis Google avec l’accord
-                du gérant, seront affichés ici (fichier src/data/avis.mjs). Cette colonne est masquée en production tant qu’il n’y en a pas.
+                Aucun avis pour l’instant : seuls de vrais avis, recopiés mot pour mot depuis la fiche Google (les plus récents,
+                quelle que soit la note), seront affichés ici (fichier src/data/avis.mjs). Cette colonne est masquée en production tant qu’il n’y en a pas.
               </p>
             )}
           </div>

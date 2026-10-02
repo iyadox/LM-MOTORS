@@ -1,8 +1,5 @@
-// Suivi des contacts (appels, WhatsApp, demandes de devis) — sans cookie, via Plausible si configuré.
-// Mémorise aussi, pour la durée de la visite, la page d'arrivée et la provenance : elles sont
-// jointes à la demande de devis pour que le garage sache d'où viennent ses clients.
-const CLE_VISITE = 'lm-visite';
-
+// Suivi des contacts (appels, WhatsApp, demandes de devis) — sans cookie ni stockage sur l'appareil,
+// via Plausible si configuré.
 export function suivre(evenement, proprietes) {
   try {
     if (typeof window.plausible === 'function') window.plausible(evenement, proprietes ? { props: proprietes } : undefined);
@@ -11,33 +8,32 @@ export function suivre(evenement, proprietes) {
   }
 }
 
-/** { entree: '/garage-auxerre/', provenance: 'google.com' | 'direct', campagne: 'fiche-google' | '' } */
-export function lireVisite() {
+/**
+ * Origine de la demande, sans rien stocker sur l'appareil : la page du site depuis laquelle le
+ * formulaire a été ouvert (référent transmis par le navigateur) et, si le visiteur arrive
+ * directement sur le formulaire, le site d'où il vient et les paramètres utm_* de l'adresse.
+ */
+export function origineDemande() {
+  let pagePrecedente = '';
+  let provenance = '';
   try {
-    return JSON.parse(sessionStorage.getItem(CLE_VISITE) || 'null');
-  } catch {
-    return null;
-  }
-}
-
-function memoriserVisite() {
-  try {
-    if (sessionStorage.getItem(CLE_VISITE)) return;
-    const params = new URLSearchParams(location.search);
-    let provenance = 'direct';
     if (document.referrer) {
-      const hote = new URL(document.referrer).hostname;
-      if (hote !== location.hostname) provenance = hote;
+      const ref = new URL(document.referrer);
+      if (ref.hostname === location.hostname) pagePrecedente = ref.pathname;
+      else provenance = ref.hostname;
+    } else {
+      provenance = 'accès direct';
     }
+    const params = new URLSearchParams(location.search);
     const campagne = [params.get('utm_source'), params.get('utm_medium'), params.get('utm_campaign')].filter(Boolean).join(' / ');
-    sessionStorage.setItem(CLE_VISITE, JSON.stringify({ entree: location.pathname, provenance, campagne }));
+    if (campagne) provenance = [provenance, campagne].filter(Boolean).join(' – ');
   } catch {
-    /* stockage indisponible (navigation privée…) : sans conséquence */
+    /* référent illisible : sans conséquence */
   }
+  return { pagePrecedente, provenance };
 }
 
 export function initialiserSuivi() {
-  memoriserVisite();
   document.addEventListener('click', (e) => {
     const cible = e.target instanceof Element ? e.target.closest('[data-suivi]') : null;
     if (cible) suivre(cible.getAttribute('data-suivi'), { lieu: cible.getAttribute('data-suivi-lieu') || 'page' });

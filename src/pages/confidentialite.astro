@@ -28,12 +28,12 @@ const netlifyForms = !F.endpoint;
       <p>{responsable ?? <Manquant quoi="dénomination sociale ou nom de l’entrepreneur" />} ({garage.nom}), {adresseComplete}.</p>
 
       <h2>Données collectées</h2>
-      <p>Uniquement ce que vous saisissez dans le formulaire de demande de devis ou de rendez-vous :</p>
+      <p>Les informations que vous saisissez dans le formulaire de demande de devis ou de rendez-vous :</p>
       <ul>
         <li>nom et téléphone, et si vous les indiquez : e-mail, commune ;</li>
         <li>votre véhicule (marque, modèle), et si vous les indiquez : immatriculation, kilométrage ;</li>
         <li>la description de votre besoin, la date souhaitée, une photo éventuelle ;</li>
-        <li>la page du site par laquelle vous êtes arrivé et le site d’où vous venez (par exemple un moteur de recherche), pour savoir comment les clients trouvent le garage.</li>
+        <li>la page du site depuis laquelle vous avez ouvert le formulaire (et, si vous arrivez directement sur le formulaire, le site d’où vous venez), pour savoir comment les clients trouvent le garage. Rien n’est stocké sur votre appareil pour cela.</li>
       </ul>
       {netlifyForms && (
         <p>
@@ -81,7 +81,7 @@ const netlifyForms = !F.endpoint;
       <p>
         Ce site ne dépose pas de cookie publicitaire ni de cookie de suivi. Les polices de caractères sont hébergées sur le site
         lui-même.{' '}
-        {garage.analytics.plausibleDomain && <>La fréquentation est mesurée avec Plausible Analytics, sans cookie ni stockage sur votre appareil : votre adresse IP et votre navigateur servent seulement à calculer un identifiant anonyme renouvelé chaque jour, et ne sont pas conservés. Les statistiques sont agrégées et utilisées uniquement par le garage.{' '}</>}
+        {garage.analytics.plausibleDomain && <>La fréquentation est mesurée avec Plausible Analytics, sans cookie ni stockage sur votre appareil : votre adresse IP et votre navigateur servent seulement à calculer un identifiant anonyme renouvelé chaque jour, et ne sont pas conservés. Les statistiques sont agrégées et utilisées uniquement par le garage (intérêt légitime, article 6.1.f du RGPD).{' '}</>}
         Les liens d’itinéraire ouvrent Google Maps dans une nouvelle page, uniquement si vous cliquez dessus.
       </p>
     </div>

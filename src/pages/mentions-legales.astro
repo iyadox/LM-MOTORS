@@ -57,11 +57,9 @@ const editeur = L.raisonSociale ? (ei ? `${L.raisonSociale} EI` : L.raisonSocial
             Conformément aux articles L.612-1 et suivants et L.616-1 du Code de la consommation, après une réclamation écrite
             adressée à {editeur ?? garage.nom} et restée sans réponse satisfaisante, le consommateur peut saisir gratuitement le
             médiateur de la consommation suivant :{' '}
-            {M ? (
-              <>{M.nom}, {M.adresse}, <a href={M.site} rel="noopener">{M.site.replace(/^https?:\/\//, '')}</a></>
-            ) : (
-              <Manquant quoi="médiateur de la consommation (nom, adresse, site)" />
-            )}.
+            {M?.nom ?? <Manquant quoi="nom du médiateur" />},{' '}
+            {M?.adresse ?? <Manquant quoi="adresse du médiateur" />},{' '}
+            {M?.site ? <a href={M.site} rel="noopener">{M.site.replace(/^https?:\/\//, '')}</a> : <Manquant quoi="site internet du médiateur" />}.
           </p>
         </>
       )}
