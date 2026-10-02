@@ -1,0 +1,104 @@
+{
+  "_meta": {
+    "date_recherche": "2026-10-02",
+    "description": "Faits vérifiés sur LM Motors (Champs-sur-Yonne), utilisables pour construire le site. Statuts : confirme = au moins 2 sources indépendantes ; source_unique = 1 source, non contredite ; a_confirmer = piste non prouvée. Rien ici ne doit être publié sans validation du gérant. Détails et sources complètes : dossier-lm-motors.md.",
+    "regle": "Toute valeur à null est inconnue : ne JAMAIS la compléter par une supposition ni par les coordonnées d'un voisin."
+  },
+  "garage": {
+    "nom_commercial": { "valeur": "LM Motors (affiché « Garage Lm Motors » sur Vroomly)", "statut": "source_unique", "sources": ["https://www.vroomly.com/garage-champs-sur-yonne/", "https://www.vroomly.com/garage-auxerre/"] },
+    "adresse": {
+      "rue": "Rue Robert Raclot",
+      "numero": null,
+      "code_postal": "89290",
+      "commune": "Champs-sur-Yonne",
+      "statut": "source_unique",
+      "sources": ["https://www.vroomly.com/garage-champs-sur-yonne/"]
+    },
+    "telephone": null,
+    "email": null,
+    "horaires": null,
+    "site_web_existant": { "valeur": "aucun (lm-motors.fr, lmmotors.fr, lmmotors89.fr, garage-lm-motors.fr… en NXDOMAIN au 02/10/2026)", "statut": "confirme" },
+    "avis": { "note": null, "nombre": 0, "commentaire": "Aucun avis trouvé (Google via résumés de recherche, Vroomly, PagesJaunes, idGarages…). Google Maps non consulté directement." },
+    "reseaux_sociaux": { "valeur": "aucun compte trouvé (Facebook, Instagram, TikTok, LinkedIn, Snapchat, YouTube)", "statut": "source_unique" },
+    "annonces_vehicules": { "valeur": "aucune (Leboncoin, La Centrale, AutoScout24, ParuVendu, L'argus)", "statut": "source_unique" },
+    "vroomly": {
+      "certifie": false,
+      "mention_propre_au_garage": "facilités de paiement",
+      "mentions_refutees": ["devis instantané", "RDV en ligne", "garantie 1 an pièces et main-d'œuvre (attribués à BM Autos, pas à LM Motors)"],
+      "pages_ou_le_garage_apparait": {
+        "Champs-sur-Yonne": "1,2 km",
+        "Auxerre": "6,1 km",
+        "Chevannes": "8,2 km",
+        "Venoy": "8,4 km",
+        "Saint-Georges-sur-Baulche": "9,2 km",
+        "Perrigny": "10,9 km",
+        "Vermenton": "14,1 km",
+        "Gurgy": "15,6 km"
+      },
+      "statut": "source_unique",
+      "note": "Distances calculées par Vroomly, sans valeur officielle : mesurer les trajets routiers avant de les publier."
+    }
+  },
+  "piste_entite_juridique": {
+    "statut": "a_confirmer",
+    "avertissement": "Aucune source ne relie formellement cette société à l'atelier de la rue Robert Raclot. À confirmer avec le Kbis avant toute mention légale.",
+    "societe": {
+      "denomination": "LM MOTORS",
+      "forme": "SAS",
+      "capital": "1 000 €",
+      "date_acte": "2026-06-24",
+      "siege_commune": "Vergigny (89600), commune associée de Rebourseaux",
+      "rcs": "Auxerre (immatriculation annoncée)",
+      "duree": "99 ans",
+      "naf": "45.20A - Entretien et réparation de véhicules automobiles légers",
+      "siren": null,
+      "president": "M. Lucas Alexis Busière",
+      "directeur_general": "prénom Florian, nom non établi",
+      "sources": ["https://independantdelyonne.com/annonces-legales-du-1er-juillet-2026/", "https://www.numtva.com/departement-yonne-89/societes-a-VERGIGNY-89600"]
+    },
+    "entreprise_individuelle_peut_etre_liee": {
+      "denomination": "M LUCAS BUSIERE",
+      "siren": "989261177",
+      "siret": "98926117700012",
+      "activite": "Commerce de voitures et de véhicules automobiles légers",
+      "commune": "Vergigny (89600)",
+      "sources": ["https://fr.kompass.com/v/vergigny/fr_26_89_89439/", "https://www.pple.fr/recherche//?city=VERGIGNY&page=4"]
+    }
+  },
+  "ne_jamais_attribuer_a_lm_motors": {
+    "telephones_de_voisins": {
+      "Auto King (rue Robert Raclot)": "06 67 81 00 63",
+      "Transakauto (10 rue Robert Raclot)": "06 75 59 43 76 / 03 86 52 19 99",
+      "BM Autos": "03 86 32 39 70",
+      "Garage Orblin": "03 86 53 60 79",
+      "Mairie de Champs-sur-Yonne": "03 86 53 30 75"
+    },
+    "homonymes": ["LM MOTORS 844368068 (Évry-Grégy-sur-Yerre, radiée)", "LM MOTORS 841955263 (Marseille, radiée)", "LM MOTORS 33 (Artigues-près-Bordeaux)", "LxM MOTORS (Allier)", "Garage LM Auto (Chamvres)", "LM Sens / LM Moto (Sens)", "LM Motors (Vannes)", "lm-motors.com (Paris)"]
+  },
+  "zone_de_chalandise": {
+    "commune": { "nom": "Champs-sur-Yonne", "insee": "89077", "code_postal": "89290", "population": 1513, "epci": "CA de l'Auxerrois (29 communes, environ 68 000 hab.)", "statut": "confirme" },
+    "code_postal_partage": ["Augy", "Escolives-Sainte-Camille", "Irancy", "Jussy", "Quenne", "Venoy", "Vincelles", "Vincelottes", "Auxerre (Vaux)"],
+    "communes_prioritaires_seo": [
+      { "commune": "Auxerre", "population": 35097 },
+      { "commune": "Monéteau", "population": 4114 },
+      { "commune": "Saint-Georges-sur-Baulche", "population": 3151 },
+      { "commune": "Appoigny", "population": 3114 },
+      { "commune": "Chevannes", "population": 2137 },
+      { "commune": "Charbuy", "population": 1868 },
+      { "commune": "Venoy", "population": 1741 },
+      { "commune": "Gurgy", "population": 1723 },
+      { "commune": "Perrigny", "population": 1247 },
+      { "commune": "Saint-Bris-le-Vineux", "population": 1024 },
+      { "commune": "Augy", "population": 954 },
+      { "commune": "Vincelles", "population": 913 },
+      { "commune": "Vermenton", "population": 1303 },
+      { "commune": "Deux Rivières (Cravant, Accolay)", "population": 1245 },
+      { "commune": "Chablis", "population": 2139 }
+    ],
+    "acces": {
+      "gare": "Champs - Saint-Bris (dans la commune)",
+      "reperes": "Centre commercial Le Rami (rue Robert Raclot / rue de la Croix Bersan)",
+      "distance_auxerre": "quelques kilomètres au sud (5 à 8 km à vol d'oiseau ; distance routière non mesurée)"
+    }
+  }
+}
