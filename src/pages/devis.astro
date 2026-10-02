@@ -5,21 +5,21 @@ import Icon from '../components/Icon.astro';
 import FormulaireDevis from '../components/FormulaireDevis.astro';
 import BoutonsContact from '../components/BoutonsContact.astro';
 import Horaires from '../components/Horaires.astro';
-import { garage, ligneRue, ligneVille, lienAppel, whatsappE164 } from '../lib/site.mjs';
+import { BROUILLON, garage, ligneRue, ligneVille, lienAppel, whatsappE164 } from '../lib/site.mjs';
 ---
 <Base
   titre="Demande de devis ou de rendez-vous"
   description={`Demandez un devis ou un rendez-vous chez ${garage.nom}, garage à Champs-sur-Yonne (89290), au sud d’Auxerre : votre véhicule, votre besoin, une photo si besoin.`}
 >
-  <section class="entete-page">
+  <section class="entete-page entete-page--compacte">
     <div class="conteneur">
       <Ariane elements={[{ nom: 'Devis & rendez-vous' }]} />
       <h1>Devis ou rendez-vous</h1>
-      <p>Décrivez votre véhicule et votre besoin : votre demande est transmise au garage, qui revient vers vous pour le devis et le créneau.</p>
+      <p>Décrivez votre véhicule et votre besoin : votre demande est transmise au garage.</p>
     </div>
   </section>
 
-  <section class="section section--gris">
+  <section class="section section--gris section--formulaire">
     <div class="conteneur deux-colonnes">
       <FormulaireDevis />
 
@@ -33,8 +33,12 @@ import { garage, ligneRue, ligneVille, lienAppel, whatsappE164 } from '../lib/si
         <ul class="liste-coches" style="margin-top: 20px;">
           <li><Icon name="map-pin" size={20} /> <span>{ligneRue}<br />{ligneVille}</span></li>
         </ul>
-        <h3 style="margin-top: 24px;">Horaires</h3>
-        <Horaires />
+        {(garage.horaires || lienAppel || BROUILLON) && (
+          <>
+            <h3 style="margin-top: 24px;">Horaires</h3>
+            <Horaires />
+          </>
+        )}
       </aside>
     </div>
   </section>

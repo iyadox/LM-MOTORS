@@ -10,8 +10,9 @@
 import { garage, engagements, acces } from './garage.mjs';
 import { services } from './services.mjs';
 import { communes, pagePrete } from './communes.mjs';
+import { avis } from './avis.mjs';
 import { versE164 } from '../lib/telephone.mjs';
-import { validerHoraires } from '../lib/horaires.mjs';
+import { validerHoraires, validerFermetures } from '../lib/horaires.mjs';
 
 const SOCIETES = /\b(SAS|SASU|SARL|EURL|SA|SNC|SCOP)\b/i;
 const geoValide = (v) => /^-?\d+\.\d{5,}$/.test(String(v));
@@ -33,6 +34,9 @@ export function listerManques() {
   if (!F.notificationsVers) ajouter('bloquant', 'Demandes', 'Adresse qui reçoit les demandes de devis (notifications), confirmée par le gérant', 'garage.formulaire.notificationsVers');
   if (!F.testeEnLigne) ajouter('bloquant', 'Demandes', 'Demande test envoyée depuis le site en ligne et bien reçue par le gérant (date)', 'garage.formulaire.testeEnLigne');
   if (F.endpoint && !F.prestataire) ajouter('bloquant', 'Demandes', 'Nom du service de formulaires utilisé (confidentialité)', 'garage.formulaire.prestataire');
+  if (!F.numeroRappel) ajouter('important', 'Demandes', 'Numéro qui s’affiche quand le garage rappelle un client', 'garage.formulaire.numeroRappel');
+  else if (!versE164(F.numeroRappel)) ajouter('bloquant', 'Demandes', `Numéro de rappel au format non reconnu : « ${F.numeroRappel} »`, 'garage.formulaire.numeroRappel');
+  if (!F.modesReponse) ajouter('important', 'Demandes', 'Moyens par lesquels le garage répond (appel, SMS, e-mail, WhatsApp)', 'garage.formulaire.modesReponse');
 
   // Adresse publique du site
   const url = urlDuSite();
@@ -63,6 +67,8 @@ export function listerManques() {
     if (erreurs.length) ajouter('bloquant', 'Horaires', `Horaires mal formés : ${erreurs.join(' ; ')}`, 'garage.horaires');
     if (garage.ouvertJoursFeries === null) ajouter('important', 'Horaires', 'Ouvert ou fermé les jours fériés ? (sans réponse, le statut en direct est masqué ces jours-là)', 'garage.ouvertJoursFeries');
   }
+  const erreursFermetures = validerFermetures(garage.fermeturesDates, garage.ouvertJoursFeries);
+  if (erreursFermetures.length) ajouter('bloquant', 'Horaires', `Fermetures mal formées : ${erreursFermetures.join(' ; ')}`, 'garage.fermeturesDates / garage.ouvertJoursFeries');
 
   // Prestations
   const validees = services.filter((s) => s.valide);
@@ -75,14 +81,25 @@ export function listerManques() {
   if (!validees.some((s) => s.prix)) ajouter('utile', 'Prestations', 'Prix ou forfaits affichables (TTC)', 'services[].prix');
   const engAValider = engagements.filter((e) => !e.valide).map((e) => e.titre);
   if (engAValider.length) ajouter('important', 'Arguments', `À confirmer : ${engAValider.join(', ')}`, 'engagements[].valide');
+  for (const e of engagements.filter((x) => x.valide && !x.texte)) ajouter('bloquant', 'Arguments', `Texte de l’argument « ${e.titre} » à écrire avec le gérant`, 'engagements[].texte');
+  for (const s of validees.filter((x) => !x.textesValides)) ajouter('bloquant', 'Prestations', `Résumé et introduction de « ${s.titre} » à faire valider (ils apparaissent dans Google)`, 'services[].textesValides');
 
   // Paiement
-  if (!garage.paiement.moyens) ajouter('utile', 'Paiement', 'Moyens de paiement acceptés', 'garage.paiement.moyens');
+  const P = garage.paiement;
+  if (!P.moyens) ajouter('utile', 'Paiement', 'Moyens de paiement acceptés', 'garage.paiement.moyens');
+  const paiementFractionneAnnonce = Boolean(P.facilites) || engagements.some((e) => e.titre === 'Paiement en plusieurs fois' && e.valide);
+  if (paiementFractionneAnnonce && P.estUnCredit === null) ajouter('bloquant', 'Paiement', 'Paiement en plusieurs fois : s’agit-il d’un crédit (organisme, paiement fractionné) ?', 'garage.paiement.estUnCredit');
+  if (paiementFractionneAnnonce && P.estUnCredit && !P.mentionCredit) ajouter('bloquant', 'Paiement', 'Mention légale obligatoire pour une offre de crédit (texte officiel en vigueur)', 'garage.paiement.mentionCredit');
+  if (paiementFractionneAnnonce && !P.facilites) ajouter('bloquant', 'Paiement', 'Conditions exactes du paiement en plusieurs fois (échéances, frais, financeur)', 'garage.paiement.facilites');
 
   // Avis et présence en ligne
   if (!garage.liens.googleAvis) ajouter('important', 'Avis', 'Lien « Demander des avis » de la fiche Google Business Profile (à créer)', 'garage.liens.googleAvis');
   if (!garage.liens.googleFiche) ajouter('utile', 'Avis', 'Lien de la fiche Google Maps', 'garage.liens.googleFiche');
   if (!garage.liens.googlePlaceId) ajouter('utile', 'Avis', 'Identifiant de lieu Google (itinéraires exacts)', 'garage.liens.googlePlaceId');
+  const AP = garage.avisPolitique;
+  if (avis.length > 0 && (!AP.contrepartie || !AP.delaiPublication || !AP.dureeConservation)) {
+    ajouter('bloquant', 'Avis', 'Politique de publication des avis : contrepartie, délai de publication, durée de conservation (D.111-17)', 'garage.avisPolitique');
+  }
 
   // Mentions légales (art. 1-1 de la loi 2004-575 « LCEN », art. R.526-27 C. com., art. L.612-1 et L.616-1 C. conso)
   if (!['societe', 'ei'].includes(L.statut)) ajouter('bloquant', 'Mentions légales', 'Statut de l’exploitant : société ou entrepreneur individuel (Kbis / extrait RNE)', 'garage.legal.statut');
@@ -99,11 +116,11 @@ export function listerManques() {
   const M = L.mediateur;
   if (!M || !M.nom || !M.adresse || !M.site) ajouter('bloquant', 'Mentions légales', 'Médiateur de la consommation : nom, adresse et site internet', 'garage.legal.mediateur');
   if (!H.nom || !H.adresse || !H.telephone) ajouter('bloquant', 'Mentions légales', 'Hébergeur du site : nom, adresse et téléphone', 'garage.hebergeur');
-  if (!F.endpoint && !H.transfertHorsUE) ajouter('bloquant', 'Confidentialité', 'Lieu de stockage des demandes et cadre du transfert hors UE (Netlify Forms : États-Unis)', 'garage.hebergeur.transfertHorsUE');
+  if (!F.endpoint && (!H.transfertHorsUE || H.transfertHorsUE === 'non')) ajouter('bloquant', 'Confidentialité', 'Netlify Forms stocke les demandes aux États-Unis : recopier le cadre du transfert depuis la politique de Netlify (« non » impossible)', 'garage.hebergeur.transfertHorsUE');
   else if (H.nom && !H.transfertHorsUE) ajouter('important', 'Confidentialité', 'Pays de l’hébergeur et cadre d’un éventuel transfert hors UE (« non » si dans l’UE)', 'garage.hebergeur.transfertHorsUE');
   if (!F.dureeConservation) ajouter('bloquant', 'Confidentialité', 'Durée de conservation des demandes, décidée et appliquée par le gérant', 'garage.formulaire.dureeConservation');
 
-  // Devis : gratuit ou payant ? (R.111-3 C. conso)
+  // Devis : gratuit ou payant ? (le client doit être informé à l'avance si le devis est payant)
   const D = garage.devis;
   if (D.payant === null) ajouter('important', 'Devis', 'Le devis est-il gratuit ou payant ? (affiché près du formulaire)', 'garage.devis.payant');
   else if (D.payant && (!D.prix || !/TTC/i.test(D.prix))) ajouter('bloquant', 'Devis', 'Prix du devis payant (TTC)', 'garage.devis.prix');

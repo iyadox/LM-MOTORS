@@ -19,6 +19,10 @@ function actualiser() {
       el.hidden = true; // horaires mal formés : rien plutôt qu'une information fausse
     }
   });
+  // Sur un site statique, un avis de congés passé disparaît sans attendre le prochain build.
+  document.querySelectorAll('[data-fermeture-au]').forEach((p) => {
+    p.hidden = maintenant.date > p.dataset.fermetureAu;
+  });
   document.querySelectorAll('[data-tableau-horaires] tr[data-jour]').forEach((tr) => {
     tr.dataset.aujourdhui = String(Number(tr.dataset.jour) === maintenant.jour);
   });

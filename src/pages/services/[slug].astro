@@ -4,7 +4,7 @@ import Ariane from '../../components/Ariane.astro';
 import Icon from '../../components/Icon.astro';
 import BoutonsContact from '../../components/BoutonsContact.astro';
 import BandeCTA from '../../components/BandeCTA.astro';
-import { servicesVisibles, BROUILLON, garage } from '../../lib/site.mjs';
+import { servicesVisibles, BROUILLON, garage, acces, ligneRue, ligneVille, lienItineraire } from '../../lib/site.mjs';
 
 export function getStaticPaths() {
   return servicesVisibles.map((service) => ({ params: { slug: service.slug }, props: { service } }));
@@ -14,9 +14,13 @@ const { service: s } = Astro.props;
 const autres = servicesVisibles.filter((x) => x.slug !== s.slug).slice(0, 4);
 const devisHref = `/devis/?prestation=${s.slug}`;
 const titreCourt = s.titreCourt ?? s.titre;
+// Titre ≤ 65 caractères : sans le suffixe de marque s'il le faut (la marque reste dans la description).
+const titreBase = `${titreCourt} à Champs-sur-Yonne, près d’Auxerre`;
+const titreAvecMarque = `${titreBase} | ${garage.nom}`;
 ---
 <Base
-  titre={`${titreCourt} à Champs-sur-Yonne, près d’Auxerre`}
+  titre={titreAvecMarque.length > 65 ? titreBase : titreAvecMarque}
+  titreComplet
   description={`${s.resume} ${garage.nom}, garage à Champs-sur-Yonne (89290), près d’Auxerre. Devis en ligne.`}
   devisHref={devisHref}
   prestation={s.titre}
@@ -60,6 +64,10 @@ const titreCourt = s.titreCourt ?? s.titre;
         {s.prix && s.valide && <p class="carte__prix">{s.prix}</p>}
         {s.prix && s.valide && s.prixInclus?.length > 0 && <p class="champ__aide">Comprend : {s.prixInclus.join(', ')}.</p>}
         <p>Indiquez votre véhicule et votre besoin : la demande est transmise au garage.</p>
+        <p class="aside-adresse">
+          <Icon name="map-pin" size={18} />
+          <span>{garage.nom}, {ligneRue}, {ligneVille} ({acces.situation}) · <a href="/acces/">Accès</a> · <a href={lienItineraire} target="_blank" rel="noopener" data-suivi="Itinéraire" data-suivi-lieu="aside-prestation">Itinéraire</a></span>
+        </p>
         <div class="groupe-boutons">
           <a href={devisHref} class="btn btn--accent btn--large" data-suivi="Clic devis" data-suivi-lieu="aside-prestation">
             <Icon name="calendar-check" size={20} /> Devis {s.titre.toLowerCase()}

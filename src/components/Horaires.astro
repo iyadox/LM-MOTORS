@@ -39,16 +39,14 @@ const fermeturesAVenir = (garage.fermeturesDates || []).filter((f) => f.au >= au
       </table>
       {garage.ouvertJoursFeries === false && <p class="champ__aide">Fermé les jours fériés.</p>}
       {fermeturesAVenir.map((f) => (
-        <p class="champ__aide">{f.texte || 'Fermeture'} : du {fmtDate.format(new Date(`${f.du}T12:00:00Z`))} au {fmtDate.format(new Date(`${f.au}T12:00:00Z`))}.</p>
+        <p class="champ__aide" data-fermeture-au={f.au}>{f.texte || 'Fermeture'} : du {fmtDate.format(new Date(`${f.du}T12:00:00Z`))} au {fmtDate.format(new Date(`${f.au}T12:00:00Z`))}.</p>
       ))}
     </div>
   )
 ) : statutSeul ? null : (
-  <p>
-    <Manquant quoi="horaires d’ouverture">
-      {lienAppel ? <span>Horaires communiqués par téléphone : <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="horaires">{garage.telephone}</a>.</span> : <span>Horaires communiqués sur demande.</span>}
-    </Manquant>
-  </p>
+  <Manquant quoi="horaires d’ouverture">
+    {lienAppel && <p>Pour connaître les horaires, appelez le <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="horaires">{garage.telephone}</a>.</p>}
+  </Manquant>
 )}
 
 <script>

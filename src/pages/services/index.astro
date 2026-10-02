@@ -6,7 +6,7 @@ import BandeCTA from '../../components/BandeCTA.astro';
 import { garage, servicesVisibles, listePrestations } from '../../lib/site.mjs';
 
 const liste = listePrestations(4);
-const titre = liste ? `Prestations : ${listePrestations(3)}` : 'Prestations du garage';
+const titre = 'Prestations du garage à Champs-sur-Yonne';
 ---
 <Base
   titre={titre}
@@ -16,7 +16,7 @@ const titre = liste ? `Prestations : ${listePrestations(3)}` : 'Prestations du g
     <div class="conteneur">
       <Ariane elements={[{ nom: 'Prestations' }]} />
       <h1>Nos prestations</h1>
-      <p>Pour chaque prestation : en quoi elle consiste, les signes qui doivent vous alerter, et la demande de devis.</p>
+      <p>Les prestations de {garage.nom} à Champs-sur-Yonne (89290), au sud d’Auxerre : en quoi elles consistent, les signes qui doivent vous alerter, et la demande de devis.</p>
     </div>
   </section>
 

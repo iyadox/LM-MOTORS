@@ -60,6 +60,24 @@ for (const f of fichiers.filter((x) => x.endsWith('.html'))) {
   }
 }
 
+// Le sitemap ne doit lister que de vraies pages publiées (ni redirection, ni noindex).
+for (const f of production ? fichiers.filter((x) => /sitemap-\d+\.xml$/.test(x)) : []) {
+  const xml = await readFile(f, 'utf8');
+  for (const [, loc] of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    const chemin = new URL(loc).pathname;
+    const html = join(DIST, chemin.endsWith('/') ? `${chemin}index.html` : chemin);
+    let contenu = null;
+    try {
+      contenu = await readFile(html, 'utf8');
+    } catch {
+      erreurs.push(`sitemap : ${chemin} ne correspond à aucune page`);
+      continue;
+    }
+    if (/http-equiv="refresh"/.test(contenu)) erreurs.push(`sitemap : ${chemin} est une redirection`);
+    else if (/name="robots" content="noindex/.test(contenu)) erreurs.push(`sitemap : ${chemin} est en noindex`);
+  }
+}
+
 for (const a of avertissements) console.warn(`  ! ${a}`);
 for (const e of erreurs) console.error(`  ✖ ${e}`);
 console.log(`Contrôle du site : ${erreurs.length} erreur(s), ${avertissements.length} avertissement(s).`);

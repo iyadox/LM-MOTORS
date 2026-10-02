@@ -1,7 +1,9 @@
 ---
 /**
  * Avis publiés sur Google (src/data/avis.mjs), recopiés sans modification, les plus récents
- * d'abord, quelle que soit la note. Informations obligatoires affichées sous la liste (D.111-17 C. conso).
+ * d'abord, quelle que soit la note. D.111-17 C. conso : informations sur le contrôle, les dates et
+ * le classement à proximité (sous la liste) ; contrepartie, délai de publication et durée de
+ * conservation dans la rubrique « Comment les avis sont publiés » de /avis/.
  */
 import { avis as tous } from '../data/avis.mjs';
 
@@ -32,5 +34,6 @@ const fmtDate = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long'
   <p class="note-bas">
     Avis recopiés sans modification depuis la fiche Google du garage, du plus récent au plus ancien, quelle que soit la note.
     Ces avis ne sont pas vérifiés par le garage ; ils sont soumis à la modération de Google.
+    {' '}<a href="/avis/#publication-avis">Comment les avis sont publiés</a>.
   </p>
 )}

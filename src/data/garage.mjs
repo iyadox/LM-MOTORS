@@ -64,7 +64,23 @@ export const garage = {
     // ex. ['Carte bancaire', 'Espèces', 'Chèque']
     moyens: null,
     // Vroomly affiche « Facilités de paiement » : à confirmer (offre du garage ou de la plateforme ?).
+    // Texte exact de l'offre fourni par le gérant (qui finance, nombre d'échéances, frais).
     facilites: null,
+    // true si l'offre est un crédit (paiement fractionné, y compris sans frais, via un organisme) :
+    // la publicité doit alors comporter la mention légale du Code de la consommation en vigueur.
+    estUnCredit: null,
+    // Mention légale obligatoire à recopier depuis le texte officiel en vigueur (L.312-5 C. conso).
+    mentionCredit: null,
+  },
+
+  // Politique de publication des avis (art. D.111-17 C. conso), obligatoire dès que des avis sont affichés.
+  avisPolitique: {
+    // ex. 'Aucune contrepartie n'est proposée en échange d'un avis.'
+    contrepartie: null,
+    // ex. 'Les avis sont recopiés sur le site dans un délai d'un mois après leur publication sur Google.'
+    delaiPublication: null,
+    // ex. 'Un avis reste affiché jusqu'à ce qu'il soit remplacé par un avis plus récent, au plus 24 mois.'
+    dureeConservation: null,
   },
 
   liens: {
@@ -110,7 +126,7 @@ export const garage = {
     telephone: null,
     // Pays de l'hébergeur et cadre du transfert si hors UE, recopiés depuis sa politique de données
     // (ex. pour Netlify, stockage aux États-Unis : 'stockage aux États-Unis, dans le cadre du Data Privacy Framework UE–États-Unis').
-    // 'non' si l'hébergement est dans l'Union européenne.
+    // 'non' seulement si l'hébergeur ET le service de formulaires stockent dans l'Union européenne.
     transfertHorsUE: null,
   },
 
@@ -127,6 +143,12 @@ export const garage = {
     notificationsVers: null,
     // Date (AAAA-MM-JJ) d'une demande test envoyée depuis le site en ligne ET reçue par le gérant.
     testeEnLigne: null,
+    // Numéro qui s'affiche chez le client quand le garage le rappelle (souvent le numéro affiché).
+    // Sert à l'encadré « Pour reconnaître l'appel du garage » et à la fiche contact (.vcf).
+    numeroRappel: null,
+    // Moyens par lesquels le garage répond réellement, ex. ['Appel', 'SMS'] ('Appel', 'SMS', 'E-mail', 'WhatsApp').
+    // Seuls ces choix sont proposés au client dans le formulaire.
+    modesReponse: null,
     // Durée de conservation des demandes, décidée par le gérant et réellement appliquée
     // (purge des demandes dans Netlify et des e-mails de notification). Principe : le temps de traiter
     // la demande et la durée de validité du devis ; si des travaux suivent, le dossier client a sa
@@ -152,7 +174,8 @@ export const engagements = [
   { titre: 'Devis avant réparation', texte: 'Un devis détaillé vous est remis avant toute réparation.', valide: false },
   { titre: 'Toutes marques', texte: 'Entretien et réparation de véhicules légers, quelle que soit la marque.', valide: false },
   { titre: 'Interlocuteur unique', texte: 'Vous parlez directement au mécanicien qui intervient sur votre voiture.', valide: false },
-  { titre: 'Paiement en plusieurs fois', texte: 'Des facilités de paiement pour étaler les grosses réparations.', valide: false },
+  // Texte à écrire avec le gérant d'après son offre réelle (voir paiement.facilites / estUnCredit).
+  { titre: 'Paiement en plusieurs fois', texte: null, valide: false },
 ];
 
 /** Repères d'accès vérifiés (dossier §3 et §8). */

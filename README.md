@@ -41,14 +41,16 @@ Ce qu'il faut demander au gérant : [`recherche/questions-gerant.md`](recherche/
 | Formulaire | sert aux tests de réception (message « version de travail ») | actif |
 | Pages communes | toutes visibles | seulement celles dont le trajet est mesuré |
 
-`npm run build:production` **refuse de construire le site** tant qu'une information bloquante manque. Exemples :
+La version de production **refuse de se construire** tant qu'une information bloquante manque. Ce contrôle fait partie du build lui-même : il s'applique aussi avec `PUBLIC_MODE=production` dans l'environnement ou dans un fichier `.env`, quelle que soit la commande. Exemples d'informations bloquantes :
 - adresse confirmée, téléphone, e-mail ;
 - mentions légales complètes, médiateur, durée de conservation ;
 - au moins une prestation validée ;
 - adresse qui reçoit les demandes, et **demande test reçue** ;
 - `SITE_URL`.
 
-Après le build, `scripts/controle-build.mjs` vérifie qu'aucune mention « À confirmer » ni prestation non validée n'a fuité dans les pages, et qu'aucun lien interne n'est cassé.
+Après le build, `scripts/controle-build.mjs` vérifie qu'aucune mention « À confirmer » ni prestation non validée n'a fuité dans les pages, qu'aucun lien interne n'est cassé et que le sitemap ne liste que des pages publiées.
+
+En production, les pages sans contenu réel ne sont pas publiées et redirigent vers l'accueil (`_redirects`) : avis sans lien Google ni avis recopiés, carte d'avis sans lien Google, communes proches sans trajet mesuré.
 
 `npm run verifier` affiche la liste à jour, et la page `/brouillon/` de la version de travail la reprend.
 
@@ -78,8 +80,10 @@ Pour utiliser un autre service de formulaires (Formspree…), renseigner `formul
 
 ## Mesurer ce que le site rapporte
 
-- Chaque demande indique la **page du site d'où elle a été envoyée** : une prestation, une page commune, l'accueil… Si le client arrive directement sur le formulaire, elle indique aussi le site d'origine et les paramètres `utm_*`. Rien n'est stocké sur l'appareil du visiteur, donc aucun bandeau de consentement n'est nécessaire.
-- Sur la fiche Google, utiliser comme lien du site : `https://<domaine>/?utm_source=google&utm_medium=fiche`. Faire de même sur Vroomly.
+- Chaque demande indique la **page du site consultée juste avant le formulaire** : une prestation, une page commune, l'accueil… Si le client arrive directement sur le formulaire, elle indique le site d'origine.
+- Aucune mesure d'audience n'est stockée sur l'appareil du visiteur, donc aucun bandeau de consentement n'est nécessaire. Seul le récapitulatif de la demande est gardé dans l'onglet, le temps d'afficher la page `/merci/`, puis effacé : c'est nécessaire au service demandé par le client.
+- Sur la fiche Google, utiliser comme lien du site : `https://<domaine>/?utm_source=google&utm_medium=fiche`. Faire de même sur Vroomly avec `utm_source=vroomly`.
+- Limite : les paramètres `utm_*` sont transmis tant que le client va de la page d'arrivée au formulaire par un bouton « Devis ». S'il visite d'autres pages entre les deux, la demande indique seulement la dernière page vue. Les chiffres sont donc une estimation basse de ce qu'apporte la fiche Google.
 - Facultatif, statistiques sans cookie avec Plausible : renseigner `analytics.plausibleDomain`, puis créer les objectifs suivants :
 
   | Objectif | Ce qu'il mesure |

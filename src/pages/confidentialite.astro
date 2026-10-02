@@ -42,12 +42,17 @@ const netlifyForms = !F.endpoint;
         </p>
       )}
 
-      <h2>Finalité et base légale</h2>
-      <p>
-        Ces informations servent uniquement à répondre à votre demande (devis, rendez-vous). Le traitement repose sur
-        les mesures précontractuelles prises à votre demande (article 6.1.b du RGPD). Elles ne sont ni vendues ni utilisées
-        pour de la publicité.
-      </p>
+      <h2>Finalités et bases légales</h2>
+      <ul>
+        <li>Répondre à votre demande de devis ou de rendez-vous : mesures précontractuelles prises à votre demande (article 6.1.b du RGPD).</li>
+        <li>
+          Savoir par quelle page du site, ou par quel site, la demande arrive : intérêt légitime du garage à connaître l’origine
+          de ses clients (article 6.1.f). Vous pouvez vous y opposer
+          {garage.email ? <>{' '}en écrivant à <a href={lienEmail(garage.email, 'Opposition')}>{garage.email}</a></> : ' en écrivant au garage'}.
+        </li>
+        {netlifyForms && <li>Filtrer les envois indésirables : intérêt légitime (article 6.1.f), par le service qui reçoit le formulaire et son outil anti-spam.</li>}
+      </ul>
+      <p>Ces informations ne sont ni vendues ni utilisées pour de la publicité.</p>
 
       <h2>Destinataires</h2>
       <p>
@@ -81,7 +86,8 @@ const netlifyForms = !F.endpoint;
       <p>
         Ce site ne dépose pas de cookie publicitaire ni de cookie de suivi. Les polices de caractères sont hébergées sur le site
         lui-même.{' '}
-        {garage.analytics.plausibleDomain && <>La fréquentation est mesurée avec Plausible Analytics, sans cookie ni stockage sur votre appareil : votre adresse IP et votre navigateur servent seulement à calculer un identifiant anonyme renouvelé chaque jour, et ne sont pas conservés. Les statistiques sont agrégées et utilisées uniquement par le garage (intérêt légitime, article 6.1.f du RGPD).{' '}</>}
+        {garage.analytics.plausibleDomain && <>La fréquentation est mesurée avec Plausible Analytics, sans cookie ni stockage sur votre appareil. Votre adresse IP et votre navigateur servent à calculer un identifiant renouvelé chaque jour et à déduire le pays, la région ou la ville, le navigateur et le type d’appareil ; ni l’adresse IP ni ces données brutes ne sont conservées. Les statistiques, agrégées, sont traitées par Plausible Analytics pour le compte du garage, qui seul les consulte (intérêt légitime, article 6.1.f du RGPD).{' '}</>}
+        Après l’envoi du formulaire, un récapitulatif de votre demande est gardé dans l’onglet du navigateur le temps d’afficher la page de confirmation, puis effacé.{' '}
         Les liens d’itinéraire ouvrent Google Maps dans une nouvelle page, uniquement si vous cliquez dessus.
       </p>
     </div>

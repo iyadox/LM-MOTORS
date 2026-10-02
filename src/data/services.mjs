@@ -8,9 +8,12 @@
  * `valide: false` = prestation pas encore confirmée par le gérant.
  *   - mode brouillon : affichée avec la mention « À confirmer » ;
  *   - mode production : masquée.
- * Avant de passer à `valide: true` : SUPPRIMER de `contenu` chaque ligne que le garage ne fait pas
- * (le gérant coche ligne par ligne, voir recherche/questions-gerant.md). Exemple : la recharge
- * de climatisation exige une attestation de capacité pour les fluides frigorigènes.
+ * Avant de passer à `valide: true` :
+ *   1. SUPPRIMER de `contenu` chaque ligne que le garage ne fait pas (le gérant coche ligne par
+ *      ligne, voir recherche/questions-gerant.md). Exemple : la recharge de climatisation exige
+ *      une attestation de capacité pour les fluides frigorigènes ;
+ *   2. ajuster `resume` et `intro` aux lignes conservées, les faire relire au gérant (le résumé
+ *      apparaît dans Google), puis mettre `textesValides: true`.
  *
  * `prix` : texte fourni par le gérant, TOUJOURS TTC (ex. « À partir de 89 € TTC »).
  * `null` = non affiché. `npm run verifier` refuse un prix sans « TTC ».
@@ -187,7 +190,7 @@ export const services = [
     slug: 'batterie-demarrage',
     titre: 'Batterie et démarrage',
     icone: 'battery-charging',
-    resume: 'Test et remplacement de batterie, alternateur, démarreur.',
+    resume: 'Test et remplacement de la batterie, contrôle de l’alternateur et du démarreur.',
     intro:
       'Une voiture qui démarre mal vient souvent d’une batterie fatiguée, mais l’alternateur ou le démarreur peuvent aussi être en cause.',
     contenu: [

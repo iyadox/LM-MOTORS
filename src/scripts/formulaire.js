@@ -70,14 +70,29 @@ function marquer(form, erreurs) {
   if (Object.keys(erreurs).some((n) => CHAMPS_CACHES.includes(n))) form.querySelector('[data-precisions]')?.setAttribute('open', '');
 }
 
-function afficherMessage(zone, type, html) {
+function afficherMessage(zone, type, html, defiler = true) {
   zone.dataset.type = type;
   zone.hidden = false;
   // Contenu injecté au tick suivant, pour une annonce fiable par les lecteurs d'écran.
+  // Pas d'animation forcée : le défilement suit la préférence « réduire les animations ».
   requestAnimationFrame(() => {
     zone.innerHTML = html;
-    zone.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (defiler) zone.scrollIntoView({ block: 'center' });
   });
+}
+
+function effacerErreur(form, champ) {
+  champ?.removeAttribute('aria-invalid');
+  const z = champ && form.querySelector(`#err-${champ.id}`);
+  if (z) {
+    z.hidden = true;
+    z.textContent = '';
+  }
+  // Plus aucun champ en erreur : le récapitulatif disparaît aussi.
+  if (!form.querySelector('[aria-invalid="true"]')) {
+    const zone = form.querySelector('[data-message-formulaire]');
+    if (zone?.dataset.type === 'erreur') zone.hidden = true;
+  }
 }
 
 /** Réduit une photo de smartphone (souvent 5 à 15 Mo) à ~1600 px en JPEG : quelques centaines de Ko. */
@@ -168,18 +183,21 @@ export function initialiserFormulaire() {
   // L'e-mail devient obligatoire si l'on demande à être recontacté par e-mail.
   const mentionEmail = form.querySelector('[data-email-facultatif]');
   form.addEventListener('change', (e) => {
-    if (e.target.name === 'recontact' && mentionEmail) mentionEmail.hidden = e.target.value === 'E-mail';
-    if (e.target.name === 'photo') form.querySelector('[data-avertissement-photo]')?.toggleAttribute('hidden', !e.target.files?.length);
+    if (e.target.name === 'recontact') {
+      if (mentionEmail) mentionEmail.hidden = e.target.value === 'E-mail';
+      const email = form.querySelector('#email');
+      if (email?.getAttribute('aria-invalid') === 'true' && !verifier(form).email) effacerErreur(form, email);
+    }
+    if (e.target.name === 'photo') {
+      photoConfirmeeSans = false;
+      form.querySelector('[data-avertissement-photo]')?.toggleAttribute('hidden', !e.target.files?.length);
+      if (e.target.getAttribute('aria-invalid') === 'true') effacerErreur(form, e.target);
+    }
   });
 
   // Une erreur disparaît dès que le champ est corrigé.
   form.addEventListener('input', (e) => {
-    const champ = e.target;
-    if (champ.getAttribute?.('aria-invalid') === 'true') {
-      champ.removeAttribute('aria-invalid');
-      const z = form.querySelector(`#err-${champ.id}`);
-      if (z) z.hidden = true;
-    }
+    if (e.target.getAttribute?.('aria-invalid') === 'true') effacerErreur(form, e.target);
   });
 
   let commence = false;
@@ -191,6 +209,7 @@ export function initialiserFormulaire() {
   });
 
   let enCours = false;
+  let photoConfirmeeSans = false;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (enCours) return;
@@ -198,9 +217,10 @@ export function initialiserFormulaire() {
     marquer(form, erreurs);
     const noms = Object.keys(erreurs);
     if (noms.length) {
-      afficherMessage(zone, 'erreur', `Merci de corriger : ${noms.map((n) => LIBELLES[n]).join(', ')}.`);
+      // Le focus amène le champ à l'écran (marges de défilement CSS) ; l'alerte est annoncée sans défiler.
+      afficherMessage(zone, 'erreur', `Merci de corriger : ${noms.map((n) => LIBELLES[n]).join(', ')}.`, false);
       const premier = form.querySelector(`#${noms[0] === 'date' ? 'date' : noms[0]}`);
-      setTimeout(() => premier?.focus({ preventScroll: true }), 400);
+      setTimeout(() => premier?.focus(), 100);
       return;
     }
 
@@ -209,16 +229,33 @@ export function initialiserFormulaire() {
     libelleBouton.textContent = 'Envoi en cours…';
     zone.hidden = true;
 
+    const champPhoto = form.elements.namedItem('photo');
+    const photo = await preparerPhoto(champPhoto?.files?.[0]);
+    // Photo impossible à alléger : on prévient le client au lieu de la retirer en silence.
+    if (photo.retiree && !photoConfirmeeSans) {
+      photoConfirmeeSans = true;
+      marquer(form, { photo: MESSAGES.photo });
+      afficherMessage(zone, 'erreur', 'La photo est trop lourde. Choisissez-en une autre, ou cliquez de nouveau sur « Envoyer ma demande » pour l’envoyer sans photo.', false);
+      setTimeout(() => champPhoto?.focus(), 100);
+      bouton.disabled = false;
+      libelleBouton.textContent = 'Envoyer ma demande';
+      enCours = false;
+      return;
+    }
+
     const donnees = new FormData(form);
     donnees.set('subject', resumerPourObjet(form));
     const origine = origineDemande();
     donnees.set('page_precedente', origine.pagePrecedente);
     donnees.set('provenance', origine.provenance);
-    const photo = await preparerPhoto(form.elements.namedItem('photo')?.files?.[0]);
+    let photoPerdue = false;
     if (photo.fichier) donnees.set('photo', photo.fichier);
     else {
       donnees.delete('photo');
-      if (photo.retiree) donnees.set('remarque', 'Photo jointe trop lourde : non transmise.');
+      if (photo.retiree) {
+        photoPerdue = true;
+        donnees.set('remarque', 'Photo jointe trop lourde : non transmise (le client est prévenu).');
+      }
     }
 
     try {
@@ -230,11 +267,19 @@ export function initialiserFormulaire() {
         donnees.delete('photo');
         donnees.set('remarque', 'L’envoi de la photo a échoué : demandez-la au client si besoin.');
         await envoyer(form, donnees);
+        photoPerdue = true;
       }
       try {
+        // Récapitulatif gardé dans l'onglet le temps d'afficher /merci/, qui l'efface aussitôt.
         sessionStorage.setItem(
           'lm-demande',
-          JSON.stringify({ prestation: valeur(form, 'prestation'), vehicule: valeur(form, 'vehicule'), telephone: valeur(form, 'telephone'), recontact: radio(form, 'recontact') || 'Appel' }),
+          JSON.stringify({
+            prestation: valeur(form, 'prestation'),
+            vehicule: valeur(form, 'vehicule'),
+            telephone: valeur(form, 'telephone'),
+            recontact: radio(form, 'recontact') || '—',
+            ...(photoPerdue ? { photo: 'non transmise' } : {}),
+          }),
         );
       } catch {
         /* stockage indisponible : la page de remerciement affichera le texte générique */

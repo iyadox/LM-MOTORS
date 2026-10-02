@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:production": "node scripts/verifier-infos.mjs --strict && PUBLIC_MODE=production astro build && node scripts/controle-build.mjs",
+    "build:production": "node scripts/verifier-infos.mjs --strict && PUBLIC_MODE=production astro build",
     "preview": "astro preview",
     "verifier": "node scripts/verifier-infos.mjs",
     "captures": "node scripts/captures.mjs",

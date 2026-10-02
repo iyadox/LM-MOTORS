@@ -3,15 +3,19 @@ import Base from '../layouts/Base.astro';
 import Ariane from '../components/Ariane.astro';
 import Icon from '../components/Icon.astro';
 import BandeCTA from '../components/BandeCTA.astro';
-import { communesVisibles, de, garage } from '../lib/site.mjs';
+import { BROUILLON, communesVisibles, de, garage } from '../lib/site.mjs';
 import { communeGarage } from '../data/communes.mjs';
+
+// En production, pas de page sans commune publiée (redirection, et exclue du sitemap).
+if (!BROUILLON && communesVisibles.length === 0) return Astro.redirect('/');
 
 const fmt = new Intl.NumberFormat('fr-FR');
 const noms = communesVisibles.map((c) => c.nom);
+const venir = noms.length ? ` Venir au garage depuis ${noms.slice(0, 5).join(', ')}${noms.length > 5 ? '…' : '.'}` : '';
 ---
 <Base
   titre="Communes proches : Auxerre et environs"
-  description={`${garage.nom}, garage automobile à Champs-sur-Yonne (89290), au sud d’Auxerre. Venir au garage depuis ${noms.slice(0, 5).join(', ')}${noms.length > 5 ? '…' : ''}`}
+  description={`${garage.nom}, garage automobile à Champs-sur-Yonne (89290), au sud d’Auxerre.${venir}`}
 >
   <section class="entete-page">
     <div class="conteneur">
@@ -35,7 +39,7 @@ const noms = communesVisibles.map((c) => c.nom);
           ))}
         </div>
       ) : (
-        <p>Les pages des communes voisines seront publiées dès que les trajets auront été mesurés.</p>
+        <p><span class="manquant">Version de travail : les pages communes seront publiées dès que les trajets auront été mesurés.</span></p>
       )}
       <p class="note-bas">
         Le code postal 89290 est partagé par plusieurs communes : {communeGarage.memeCodePostal.join(', ')} et Champs-sur-Yonne.

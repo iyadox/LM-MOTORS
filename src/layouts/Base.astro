@@ -58,7 +58,7 @@ const navigation = [
 const autreContact = Boolean(lienAppel || whatsappE164);
 const surFormulaire = chemin === '/devis/' || chemin === '/merci/';
 const devisBarre = !surFormulaire || !autreContact;
-const devisBarreHref = surFormulaire ? '#formulaire' : devisHref;
+const devisBarreHref = chemin === '/devis/' ? '#formulaire' : devisHref;
 
 const manques = BROUILLON ? listerManques() : [];
 const nbBloquants = manques.filter((m) => m.niveau === 'bloquant').length;
@@ -193,7 +193,7 @@ const L = garage.legal;
             <ul>
               <li><a href="/devis/">Demande de devis ou de RDV</a></li>
               <li><a href="/acces/">Accès & horaires</a></li>
-              {pageAvisVisible && <li><a href="/avis/">Laisser un avis</a></li>}
+              {pageAvisVisible && <li><a href="/avis/">{garage.liens.googleAvis || garage.liens.googleFiche || BROUILLON ? 'Laisser un avis' : 'Avis clients'}</a></li>}
               <li><a href="/mentions-legales/">Mentions légales</a></li>
               <li><a href="/confidentialite/">Confidentialité</a></li>
               {BROUILLON && <li><a href="/brouillon/">Liste des infos à compléter</a></li>}

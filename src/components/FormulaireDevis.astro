@@ -14,6 +14,9 @@ import { communes, communeGarage } from '../data/communes.mjs';
 const endpoint = garage.formulaire.endpoint;
 const netlify = !endpoint;
 const nomsCommunes = [communeGarage.nom, ...communes.map((c) => c.nom)];
+// Préférence de recontact : seulement les moyens confirmés par le gérant, sinon les plus courants
+// (présentés comme une préférence du client, pas comme un engagement du garage).
+const modes = garage.formulaire.modesReponse ?? ['Appel', 'SMS', 'E-mail'];
 const D = garage.devis;
 const L = garage.legal;
 const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? ' EI' : ''} (${garage.nom})` : garage.nom;
@@ -76,7 +79,7 @@ const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? '
     </div>
     <div class="champ">
       <label for="message">Décrivez le problème ou la demande <span class="facultatif">(facultatif)</span></label>
-      <textarea id="message" name="message" rows="3" placeholder="Ex. : bruit à l’avant au freinage depuis une semaine, voyant moteur allumé…"></textarea>
+      <textarea id="message" name="message" rows="2" placeholder="Ex. : bruit à l’avant au freinage depuis une semaine, voyant moteur allumé…"></textarea>
     </div>
   </fieldset>
 
@@ -97,8 +100,9 @@ const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? '
   </fieldset>
 
   <details class="precisions" data-precisions>
-    <summary>Ajouter des précisions <span class="facultatif">(facultatif : photo, immatriculation, date souhaitée, e-mail…)</span></summary>
+    <summary>Ajouter des précisions <span class="facultatif">(facultatif)</span></summary>
     <div class="precisions__contenu">
+      <p class="champ__aide" style="margin: 0;">Photo, immatriculation, kilométrage, date souhaitée, e-mail, commune.</p>
       <div class="champ">
         <label for="photo">Photo <span class="facultatif">(facultatif)</span></label>
         <input id="photo" name="photo" type="file" accept="image/*" aria-describedby="aide-photo err-photo" />
@@ -119,7 +123,7 @@ const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? '
         <div class="champ">
           <label for="date">Date souhaitée <span class="facultatif">(facultatif)</span></label>
           <input id="date" name="date_souhaitee" type="date" aria-describedby="aide-date err-date" />
-          <span class="champ__aide" id="aide-date">Le créneau vous sera confirmé par le garage.</span>
+          <span class="champ__aide" id="aide-date">Date indicative, à convenir avec le garage.</span>
           <p class="champ__erreur" id="err-date" hidden></p>
         </div>
         <fieldset class="champ champ--groupe">
@@ -146,12 +150,11 @@ const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? '
         </div>
       </div>
       <fieldset class="champ champ--groupe">
-        <legend class="champ__libelle">Comment préférez-vous être recontacté ?</legend>
+        <legend class="champ__libelle">Votre préférence pour être recontacté</legend>
         <div class="choix">
-          <label><input type="radio" name="recontact" value="Appel" checked /> Appel</label>
-          <label><input type="radio" name="recontact" value="SMS" /> SMS</label>
-          <label><input type="radio" name="recontact" value="E-mail" /> E-mail</label>
-          {whatsappE164 && <label><input type="radio" name="recontact" value="WhatsApp" /> WhatsApp</label>}
+          {modes.map((m, i) => (
+            <label><input type="radio" name="recontact" value={m} checked={i === 0} /> {m}</label>
+          ))}
         </div>
       </fieldset>
     </div>
@@ -164,12 +167,6 @@ const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? '
   )}
   {D.payant === null && BROUILLON && <p><Manquant quoi="devis gratuit ou payant ?" /></p>}
 
-  <p class="mention-rgpd">
-    Vos informations sont utilisées par {responsable} uniquement pour répondre à votre demande
-    (avec la page du site d’où vous l’envoyez, pour savoir comment les clients trouvent le garage).{' '}
-    <a href="/confidentialite/">Politique de confidentialité</a>
-  </p>
-
   <div class="groupe-boutons">
     <button type="submit" class="btn btn--accent" data-bouton-envoi>
       <Icon name="arrow-right" size={20} />
@@ -181,6 +178,12 @@ const responsable = L.raisonSociale ? `${L.raisonSociale}${L.statut === 'ei' ? '
       </button>
     )}
   </div>
+  <p class="mention-rgpd">
+    Vos informations sont utilisées par {responsable} pour répondre à votre demande. La page du site consultée
+    juste avant le formulaire (ou le site d’où vous venez) est jointe, pour savoir comment les clients trouvent le garage.{' '}
+    <a href="/confidentialite/">Politique de confidentialité</a>
+  </p>
+
   <p class="champ__aide" data-avertissement-photo hidden>Avec WhatsApp, joignez la photo directement dans la conversation.</p>
   {lienAppel && (
     <p class="champ__aide">Vous préférez parler directement au garage ? <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="formulaire">Appelez le {garage.telephone}</a>.</p>

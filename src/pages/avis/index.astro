@@ -9,6 +9,9 @@ import { BROUILLON, garage, avis, pageAvisVisible } from '../../lib/site.mjs';
 
 // En production, pas de page « Avis » sans lien pour en laisser ni avis à montrer.
 if (!pageAvisVisible) return Astro.redirect('/');
+
+const lienDepot = garage.liens.googleAvis || garage.liens.googleFiche;
+const AP = garage.avisPolitique;
 ---
 <Base
   titre="Avis clients"
@@ -25,23 +28,25 @@ if (!pageAvisVisible) return Astro.redirect('/');
   <section class="section">
     <div class="conteneur">
       <div class="grille grille--2" style="align-items: start;">
-        <div>
-          <h2>Laisser un avis</h2>
-          {garage.liens.googleAvis ? (
-            <a href={garage.liens.googleAvis} class="btn btn--accent" target="_blank" rel="noopener" data-suivi="Avis Google" data-suivi-lieu="avis">
-              <Icon name="star" size={20} /> Laisser un avis sur Google
-            </a>
-          ) : (
-            BROUILLON && <p><Manquant quoi="lien « Demander des avis » de la fiche Google Business Profile" /></p>
-          )}
-          <ul class="liste-coches" style="margin-top: 28px;">
-            <li><Icon name="check" size={20} /> <span>Racontez ce qui a été fait et comment ça s’est passé.</span></li>
-            <li><Icon name="check" size={20} /> <span>Un avis honnête, positif ou non, est toujours utile.</span></li>
-          </ul>
-          {garage.liens.googleFiche && (
-            <p style="margin-top: 20px;"><a href={garage.liens.googleFiche} target="_blank" rel="noopener">Voir les avis sur Google →</a></p>
-          )}
-        </div>
+        {(lienDepot || BROUILLON) && (
+          <div>
+            <h2>Laisser un avis</h2>
+            {lienDepot ? (
+              <a href={lienDepot} class="btn btn--accent" target="_blank" rel="noopener" data-suivi="Avis Google" data-suivi-lieu="avis">
+                <Icon name="star" size={20} /> {garage.liens.googleAvis ? 'Laisser un avis sur Google' : 'Donner votre avis sur la fiche Google'}
+              </a>
+            ) : (
+              <p><Manquant quoi="lien « Demander des avis » de la fiche Google Business Profile" /></p>
+            )}
+            <ul class="liste-coches" style="margin-top: 28px;">
+              <li><Icon name="check" size={20} /> <span>Racontez ce qui a été fait et comment ça s’est passé.</span></li>
+              <li><Icon name="check" size={20} /> <span>Un avis honnête, positif ou non, est toujours utile.</span></li>
+            </ul>
+            {garage.liens.googleFiche && (
+              <p style="margin-top: 20px;"><a href={garage.liens.googleFiche} target="_blank" rel="noopener">Voir les avis sur Google →</a></p>
+            )}
+          </div>
+        )}
 
         {(avis.length > 0 || BROUILLON) && (
           <div>
@@ -57,6 +62,18 @@ if (!pageAvisVisible) return Astro.redirect('/');
           </div>
         )}
       </div>
+
+      {(avis.length > 0 || BROUILLON) && (
+        <div class="prose" id="publication-avis" style="margin-top: 48px;">
+          <h2>Comment les avis sont publiés</h2>
+          <ul>
+            <li>Les avis affichés sur ce site sont recopiés sans modification depuis la fiche Google du garage, du plus récent au plus ancien, quelle que soit la note. Ils ne sont pas vérifiés par le garage.</li>
+            <li>Contrepartie : {AP.contrepartie ?? <Manquant quoi="contrepartie ou non en échange d’un avis" />}</li>
+            <li>Délai de publication : {AP.delaiPublication ?? <Manquant quoi="délai maximum de publication" />}</li>
+            <li>Durée de conservation : {AP.dureeConservation ?? <Manquant quoi="durée d’affichage d’un avis" />}</li>
+          </ul>
+        </div>
+      )}
     </div>
   </section>
 

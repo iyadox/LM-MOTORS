@@ -3,7 +3,11 @@
 //   npm run verifier            → affiche la liste
 //   node scripts/verifier-infos.mjs --strict → échoue s'il reste un élément bloquant
 //                                              (utilisé par `npm run build:production`)
+import { loadEnv } from 'vite';
 import { listerManques, ORDRE_NIVEAUX } from '../src/data/manques.mjs';
+
+// Mêmes variables que le build : environnement, puis fichier .env.
+Object.assign(process.env, { ...loadEnv('production', process.cwd(), ['PUBLIC_', 'SITE_']), ...process.env });
 
 const strict = process.argv.includes('--strict');
 const manques = listerManques().sort((a, b) => ORDRE_NIVEAUX[a.niveau] - ORDRE_NIVEAUX[b.niveau]);

@@ -69,14 +69,22 @@ const habitants = fmt.format(Math.round(communeGarage.population / 100) * 100);
             <br /><a class="lien-cible" href={lienItineraire} target="_blank" rel="noopener" data-suivi="Itinéraire" data-suivi-lieu="carte">Itinéraire</a>
           </div>
         </div>
-        <div class="carte-contact__ligne">
-          <Icon name="clock" size={22} />
-          <div>
-            <strong>Horaires</strong>
-            {garage.horaires ? <Horaires statutSeul clair={false} /> : <Manquant quoi="horaires"><span>Sur demande</span></Manquant>}
-            <br /><a class="lien-cible" href="/acces/">Voir les horaires</a>
+        {(garage.horaires || BROUILLON) && (
+          <div class="carte-contact__ligne">
+            <Icon name="clock" size={22} />
+            <div>
+              <strong>Horaires</strong>
+              {garage.horaires ? (
+                <>
+                  <Horaires statutSeul clair={false} />
+                  <br /><a class="lien-cible" href="/acces/">Voir les horaires</a>
+                </>
+              ) : (
+                <Manquant quoi="horaires" />
+              )}
+            </div>
           </div>
-        </div>
+        )}
         <div class="carte-contact__ligne carte-contact__ligne--derniere">
           <Icon name="phone" size={22} />
           <div>
@@ -101,7 +109,7 @@ const habitants = fmt.format(Math.round(communeGarage.population / 100) * 100);
             <AConfirmer valide={e.valide} class="carte">
               <span class="carte__icone"><Icon name="shield-check" size={26} /></span>
               <h3>{e.titre}</h3>
-              <p>{e.texte}</p>
+              <p>{e.texte ?? <Manquant quoi="texte exact de l’offre, à écrire avec le gérant" />}</p>
             </AConfirmer>
           ))}
         </div>
@@ -155,7 +163,7 @@ const habitants = fmt.format(Math.round(communeGarage.population / 100) * 100);
         </li>
         <li class="etape">
           <h3>Le garage reçoit la demande</h3>
-          <p>Votre demande est transmise à {garage.nom}, qui revient vers vous pour le devis et le créneau.</p>
+          <p>Votre demande est transmise à {garage.nom}, avec vos coordonnées et votre préférence pour être recontacté.</p>
         </li>
         <li class="etape">
           <h3>Vous déposez la voiture</h3>

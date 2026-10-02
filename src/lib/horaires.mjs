@@ -35,6 +35,21 @@ export function validerHoraires(horaires) {
   return erreurs;
 }
 
+const DATE_ISO = /^\d{4}-\d{2}-\d{2}$/;
+const dateValide = (x) => typeof x === 'string' && DATE_ISO.test(x) && new Date(`${x}T00:00:00Z`).toISOString().slice(0, 10) === x;
+
+/** Vérifie les fermetures datées et la réponse sur les jours fériés. Renvoie la liste des erreurs. */
+export function validerFermetures(fermetures, ouvertJoursFeries) {
+  const erreurs = [];
+  if (![true, false, null].includes(ouvertJoursFeries)) erreurs.push('ouvertJoursFeries doit valoir true, false ou null');
+  if (!Array.isArray(fermetures)) return [...erreurs, 'fermeturesDates doit être une liste'];
+  fermetures.forEach((f, i) => {
+    if (!dateValide(f?.du) || !dateValide(f?.au)) erreurs.push(`fermeture ${i + 1} : dates « du » et « au » au format AAAA-MM-JJ attendues`);
+    else if (f.du > f.au) erreurs.push(`fermeture ${i + 1} : « du » doit précéder « au »`);
+  });
+  return erreurs;
+}
+
 const iso = (a, m, j) => `${a}-${String(m).padStart(2, '0')}-${String(j).padStart(2, '0')}`;
 
 /** Jours fériés en France métropolitaine (hors Alsace-Moselle), au format AAAA-MM-JJ. */
@@ -112,10 +127,14 @@ export function calculerStatut(horaires, maintenant, options = {}) {
   // Prochaine ouverture, en cherchant jusqu'à 60 jours (congés compris).
   for (let decalage = 0; decalage <= 60; decalage++) {
     const date = plusJours(maintenant.date, decalage);
-    if (fermeLe(date)) continue;
-    if (feries.has(date) && ouvertJoursFeries === null) continue;
     const j = (maintenant.jour + decalage) % 7;
     const plages = [...(horaires[j]?.plages || [])].sort((x, y) => enMinutes(x[0]) - enMinutes(y[0]));
+    if (fermeLe(date)) continue;
+    // Jour férié dont on ignore la règle : on ne peut pas annoncer la prochaine ouverture.
+    if (feries.has(date) && ouvertJoursFeries === null) {
+      if (plages.length) return { ouvert: false, texte: `Fermé${raison}` };
+      continue;
+    }
     for (const [debut] of plages) {
       if (decalage === 0 && enMinutes(debut) <= maintenant.minutes) continue;
       let quand;

@@ -2,7 +2,9 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import BoutonsContact from '../components/BoutonsContact.astro';
-import { BROUILLON, garage, lienAppel } from '../lib/site.mjs';
+import { BROUILLON, garage, lienAppel, lienTel, whatsappE164 } from '../lib/site.mjs';
+
+const rappel = garage.formulaire.numeroRappel;
 ---
 <Base titre="Demande envoyée" description={`Votre demande a bien été transmise au garage ${garage.nom}.`} noindex>
   <section class="entete-page">
@@ -12,7 +14,7 @@ import { BROUILLON, garage, lienAppel } from '../lib/site.mjs';
       <p>
         {BROUILLON
           ? 'Version de travail : cette demande sert à vérifier la réception. Elle n’est pas encore traitée par le garage.'
-          : `Votre demande a été transmise à ${garage.nom}. Le garage revient vers vous selon le moyen de contact que vous avez choisi.`}
+          : `Votre demande a été transmise à ${garage.nom}, avec votre préférence pour être recontacté.`}
       </p>
     </div>
   </section>
@@ -26,13 +28,17 @@ import { BROUILLON, garage, lienAppel } from '../lib/site.mjs';
           <dt>Recontact</dt><dd data-recap="recontact"></dd>
           <dt>Votre numéro</dt><dd data-recap="telephone"></dd>
         </dl>
+        <p class="message-formulaire" data-type="erreur" data-recap-photo hidden>
+          Votre photo n’a pas pu être envoyée.{' '}
+          {whatsappE164 || garage.email ? 'Vous pouvez l’envoyer par WhatsApp ou par e-mail.' : 'Le garage pourra vous la demander.'}
+        </p>
         <p class="champ__aide">Une erreur dans votre numéro ? <a href="/devis/">Refaites la demande</a>{lienAppel && <> ou appelez le <a href={lienAppel} data-suivi="Appel" data-suivi-lieu="merci">{garage.telephone}</a></>}.</p>
       </div>
 
-      {lienAppel && (
+      {rappel && (
         <p class="encadre">
           <strong>Pour reconnaître l’appel du garage</strong>
-          Le garage peut vous rappeler depuis le {garage.telephone}. <a href="/lm-motors.vcf" download>Enregistrer ce numéro dans mes contacts</a>.
+          Le garage vous rappelle depuis le <a href={lienTel(rappel)}>{rappel}</a>. <a href="/lm-motors.vcf" download>Enregistrer ce numéro dans mes contacts</a>.
         </p>
       )}
 
@@ -61,6 +67,7 @@ import { BROUILLON, garage, lienAppel } from '../lib/site.mjs';
         const dd = bloc.querySelector(`[data-recap="${cle}"]`);
         if (dd) dd.textContent = String(valeur || '—');
       }
+      if (demande.photo === 'non transmise') bloc.querySelector<HTMLElement>('[data-recap-photo]')?.removeAttribute('hidden');
       bloc.hidden = false;
     }
   } catch {

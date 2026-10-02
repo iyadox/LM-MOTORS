@@ -534,6 +534,7 @@ p {
 @media (max-width: 60em) {
   .entete__barre {
     flex-wrap: wrap;
+    column-gap: 8px;
   }
 
   .nav {
@@ -1001,6 +1002,7 @@ p {
 
 .ariane li + li::before {
   content: '/';
+  content: '/' / '';
   margin-right: 6px;
   color: var(--ligne-sombre);
 }
@@ -1108,6 +1110,7 @@ p {
 
 .faq summary::after {
   content: '+';
+  content: '+' / '';
   position: absolute;
   right: 20px;
   top: 50%;
@@ -1119,6 +1122,7 @@ p {
 
 .faq details[open] summary::after {
   content: '–';
+  content: '–' / '';
 }
 
 .faq details > div {
@@ -1178,7 +1182,7 @@ p {
   font-size: 0.92rem;
 }
 
-.champ input,
+.champ input:not([type='radio']),
 .champ select,
 .champ textarea {
   width: 100%;
@@ -1197,10 +1201,11 @@ p {
   resize: vertical;
 }
 
-.champ input:focus,
+.champ input:not([type='radio']):focus,
 .champ select:focus,
 .champ textarea:focus {
-  outline: none;
+  outline: 3px solid var(--encre);
+  outline-offset: 2px;
   border-color: var(--accent-texte);
   box-shadow: 0 0 0 4px rgb(255 106 19 / 20%);
 }
@@ -1226,11 +1231,14 @@ p {
   content: '⚠';
 }
 
-.champ--groupe {
+.formulaire .champ--groupe {
   border: 0;
+  border-radius: 0;
   padding: 0;
   margin: 0;
   min-width: 0;
+  background: none;
+  gap: 6px;
 }
 
 .champ--groupe legend {
@@ -1453,7 +1461,7 @@ p {
   }
 
   .barre-mobile .btn__libelle {
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
     text-align: center;
   }
 
@@ -1879,5 +1887,85 @@ p {
 
   body {
     padding: 0;
+  }
+}
+
+/* ---------- Page devis : formulaire visible dès le premier écran sur mobile ---------- */
+
+@media (max-width: 37.5em) {
+  .entete-page--compacte {
+    padding-block: 20px 16px;
+  }
+
+  .entete-page--compacte h1 {
+    font-size: 2rem;
+  }
+
+  .entete-page--compacte p {
+    font-size: 1rem;
+  }
+
+  .section--formulaire {
+    padding-top: 24px;
+  }
+}
+
+.aside-adresse {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.95rem;
+  color: var(--texte-doux);
+}
+
+.aside-adresse .icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--accent-texte);
+}
+
+/* ---------- Texte très agrandi sur petit écran : barre en deux colonnes ---------- */
+
+@media (max-width: 18.5em) {
+  :root {
+    --hauteur-barre-mobile: calc(5.5rem + 28px);
+  }
+
+  .barre-mobile {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .barre-mobile .btn {
+    flex-direction: row;
+    min-height: 2.75rem;
+  }
+
+  .barre-mobile .icon {
+    display: none;
+  }
+
+  .barre-mobile .btn:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- Fenêtres basses (zoom 400 %, téléphone en paysage) : rien de fixe ---------- */
+
+@media (max-height: 480px) {
+  :root {
+    --hauteur-barre-mobile: 0px;
+  }
+
+  html {
+    scroll-padding-top: 1rem;
+  }
+
+  .entete {
+    position: relative;
+  }
+
+  .barre-mobile {
+    display: none !important;
   }
 }
